@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react"
 
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
+
 function Home() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/users/")
+    fetch(`${API_URL}/api/users/`)
       .then(res => res.json())
       .then(data => {
         console.log("Datos recibidos:", data)
@@ -15,7 +17,6 @@ function Home() {
       })
       .catch(err => {
         console.error("Error al traer usuarios:", err)
-        alert(`❌ Error: ${err.message}\n¿Está corriendo el servidor en http://127.0.0.1:8000?`)
         setError(err.message)
         setLoading(false)
       })
