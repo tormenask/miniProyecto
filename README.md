@@ -8,11 +8,13 @@ Aplicación web que consume la API REST del backend para gestionar usuarios y ac
 
 | Ruta | Página | Descripción |
 |------|--------|-------------|
-| `/` | Home | Lista de usuarios registrados |
-| `/hoy` | Hoy | Actividades del día |
+| `/login` | Login | Inicio de sesión |
+| `/register` | Register | Registro de nuevo usuario |
+| `/hoy` | Hoy | Actividades del día (página principal) |
 | `/crear` | Crear | Formulario para crear actividades |
 | `/actividad/:id` | Actividad | Detalle de una actividad |
 | `/progreso` | Progreso | Dashboard de progreso |
+| `/home` | Home | Lista de usuarios registrados |
 
 ## 🛠️ Tecnologías
 
@@ -26,26 +28,28 @@ Aplicación web que consume la API REST del backend para gestionar usuarios y ac
 
 ```
 frontend/
-├── public/                 # Archivos estáticos
+├── public/                      # Archivos estáticos
 ├── src/
-│   ├── assets/             # Imágenes y recursos
-│   ├── pages/              # Componentes de página
-│   │   ├── Home.jsx        # Lista de usuarios
-│   │   ├── Hoy.jsx         # Actividades del día
-│   │   ├── Crear.jsx       # Crear actividad
-│   │   ├── Actividad.jsx   # Detalle de actividad
-│   │   └── Progreso.jsx    # Dashboard de progreso
-│   ├── App.jsx             # Router y rutas principales
-│   ├── App.css             # Estilos de la app
-│   ├── index.css           # Estilos globales (Tailwind)
-│   └── main.jsx            # Punto de entrada
-├── .env                    # Variables de entorno (no se sube a git)
-├── .env.example            # Plantilla de variables de entorno
-├── index.html              # HTML principal
-├── package.json            # Dependencias y scripts
-├── tailwind.config.js      # Configuración de TailwindCSS
-├── postcss.config.js       # Configuración de PostCSS
-└── vite.config.js          # Configuración de Vite
+│   ├── components/              # Componentes reutilizables
+│   │   └── PrivateRoute.jsx     # Protección de rutas autenticadas
+│   ├── pages/                   # Componentes de página
+│   │   ├── Login.jsx            # Inicio de sesión
+│   │   ├── Register.jsx         # Registro de usuario
+│   │   ├── Hoy.jsx              # Actividades del día
+│   │   ├── Crear.jsx            # Crear actividad
+│   │   ├── Actividad.jsx        # Detalle de actividad
+│   │   ├── Progreso.jsx         # Dashboard de progreso
+│   │   └── Home.jsx             # Lista de usuarios
+│   ├── App.jsx                  # Router y rutas principales
+│   ├── index.css                # Estilos globales (Tailwind)
+│   └── main.jsx                 # Punto de entrada
+├── .env                         # Variables de entorno (no se sube a git)
+├── .env.example                 # Plantilla de variables de entorno
+├── index.html                   # HTML principal
+├── package.json                 # Dependencias y scripts
+├── tailwind.config.js           # Configuración de TailwindCSS
+├── postcss.config.js            # Configuración de PostCSS
+└── vite.config.js               # Configuración de Vite
 ```
 
 ## 🚀 Instalación y Ejecución
