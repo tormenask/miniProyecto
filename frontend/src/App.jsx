@@ -4,11 +4,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import PrivateRoute from './components/PrivateRoute'
 import Home from './pages/Home'
 import Hoy from './pages/Hoy'
-import Crear from './pages/Crear'
+import CrearActividad from './pages/CrearActividad'
 import Actividad from './pages/Actividad'
 import Progreso from './pages/Progreso'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import MisActividades from './pages/MisActividades'
+
 
 function App() {
   return (
@@ -18,17 +20,17 @@ function App() {
         <Route path="/" element={<Navigate to="/hoy" replace />} />
 
         {/* Rutas protegidas: requieren token de acceso */}
-        <Route path="/hoy"           element={<PrivateRoute><Hoy /></PrivateRoute>} />
-        <Route path="/home"          element={<PrivateRoute><Home /></PrivateRoute>} />
-        <Route path="/crear"         element={<PrivateRoute><Crear /></PrivateRoute>} />
+        <Route path="/hoy" element={<PrivateRoute><Hoy /></PrivateRoute>} />
+        <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+        <Route path="/CrearActividad" element={<PrivateRoute><CrearActividad /></PrivateRoute>} />
         <Route path="/actividad/:id" element={<PrivateRoute><Actividad /></PrivateRoute>} />
-        <Route path="/progreso"      element={<PrivateRoute><Progreso /></PrivateRoute>} />
-
+        <Route path="/progreso" element={<PrivateRoute><Progreso /></PrivateRoute>} />
+        <Route path="/actividades" element={<PrivateRoute> <MisActividades /> </PrivateRoute>} />
         {/* Rutas de autenticación */}
-        <Route path="/login"    element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
-    </Router>
+    </Router >
   )
 }
 

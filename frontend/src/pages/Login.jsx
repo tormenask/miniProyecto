@@ -64,7 +64,7 @@ export default function Login() {
       // Guardamos el nombre de usuario para mostrarlo en la bienvenida de /hoy.
       localStorage.setItem('username', form.username)
 
-      navigate('/hoy')
+      navigate('/home')
     } catch (err) {
       // UX #9 – Recuperación: mensajes específicos según el tipo de error.
       if (err.response?.status === 401) {
