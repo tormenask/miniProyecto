@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom'
 
 function Hoy() {
   const navigate = useNavigate()
-  const [username, setUsername]           = useState('')
-  const [showWelcome, setShowWelcome]     = useState(true)
+  const [username, setUsername] = useState('')
+  const [showWelcome, setShowWelcome] = useState(true)
 
   useEffect(() => {
     // Recupera el nombre de usuario guardado en localStorage durante el login.
