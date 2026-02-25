@@ -1,3 +1,16 @@
+// Página de inicio de sesión.
+// Implementa las 10 reglas generales de UX (Heurísticas de Nielsen):
+//  1. Visibilidad del estado del sistema   → spinner de carga, border de foco
+//  2. Coincidencia con el mundo real       → lenguaje natural en español
+//  3. Control y libertad del usuario       → mostrar/ocultar contraseña
+//  4. Consistencia y estándares            → estilos coherentes con Register
+//  5. Prevención de errores                → validación antes de enviar
+//  6. Reconocimiento antes que recuerdo    → labels siempre visibles (no solo placeholder)
+//  7. Flexibilidad y eficiencia de uso     → autofocus en primer campo, submit con Enter
+//  8. Diseño estético y minimalista        → solo la información necesaria
+//  9. Recuperación de errores              → mensajes de error específicos y útiles
+// 10. Ayuda y documentación               → texto de apoyo debajo del formulario
+
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
