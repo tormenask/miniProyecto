@@ -43,7 +43,8 @@ frontend/
 │   ├── App.jsx                  # Router y rutas principales
 │   ├── index.css                # Estilos globales (Tailwind)
 │   └── main.jsx                 # Punto de entrada
-├── .env                         # Variables de entorno (no se sube a git)
+├── .env                         # Variables de entorno locales (no se sube a git)
+├── .env.production              # Variables de entorno para producción
 ├── .env.example                 # Plantilla de variables de entorno
 ├── index.html                   # HTML principal
 ├── package.json                 # Dependencias y scripts
@@ -89,9 +90,16 @@ El frontend estará disponible en **http://localhost:5173**
 
 ## ⚙️ Variables de Entorno
 
-| Variable | Descripción | Valor por defecto |
-|----------|-------------|-------------------|
-| `VITE_API_URL` | URL base de la API del backend | `http://127.0.0.1:8000` |
+Vite selecciona el archivo automáticamente según el comando ejecutado:
+
+| Archivo | Comando | URL de la API |
+|---------|---------|---------------|
+| `.env` | `npm run dev` | `http://127.0.0.1:8000` |
+| `.env.production` | `npm run build` | `https://miniproyecto-back.onrender.com` |
+
+| Variable | Descripción |
+|----------|-------------|
+| `VITE_API_URL` | URL base de la API del backend |
 
 ## ⚠️ Nota Importante
 
