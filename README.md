@@ -95,7 +95,7 @@ Vite selecciona el archivo automáticamente según el comando ejecutado:
 | Archivo | Comando | URL de la API |
 |---------|---------|---------------|
 | `.env` | `npm run dev` | `http://127.0.0.1:8000` |
-| `.env.production` | `npm run build` | `https://miniproyecto-back.onrender.com` |
+| `.env.production` | `npm run build` | `https://miniproyecto-backend.onrender.com` |
 
 | Variable | Descripción |
 |----------|-------------|
