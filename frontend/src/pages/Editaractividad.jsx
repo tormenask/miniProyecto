@@ -68,8 +68,9 @@ function EditarActividad() {
         const errData = await res.json()
         throw new Error(res.status === 400 ? Object.values(errData).flat().join(' ') : 'Error al guardar. Verifica la conexión.')
       }
+      window.scrollTo({ top: 0, behavior: 'smooth' })
       setExito('Los cambios fueron guardados con éxito. Volviendo al detalle...')
-      setTimeout(() => navigate(`/actividad/${id}`), 2000)
+      setTimeout(() => navigate(`/actividad/${id}`), 2500)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -99,11 +100,12 @@ function EditarActividad() {
           Volver al detalle
         </button>
 
+        <Alert type="success" mensaje={exito} />
+
         <div className="bg-white rounded-xl shadow-sm border border-[#E1E4E7] p-8">
           <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Editar Actividad</h1>
           <p className="text-gray-400 text-sm mb-6">Modifica los campos que necesites y guarda los cambios.</p>
 
-          <Alert type="success" mensaje={exito} />
           <ErrorAlert mensaje={error} />
 
           <form onSubmit={handleSubmit} className="space-y-5 mt-4">

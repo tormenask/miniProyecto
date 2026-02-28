@@ -49,8 +49,9 @@ function DetalleActividad() {
       const res = await fetch(`${API_URL}/api/activities/${id}/`, { method: 'DELETE', headers })
       if (!res.ok) throw new Error('Error al eliminar la actividad.')
       setModalEliminar(false)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
       setExitoAccion('Actividad eliminada correctamente. Redirigiendo...')
-      setTimeout(() => navigate('/MisActividades'), 1500)
+      setTimeout(() => navigate('/MisActividades'), 2000)
     } catch (err) {
       setErrorAccion(err.message)
       setEliminando(false)

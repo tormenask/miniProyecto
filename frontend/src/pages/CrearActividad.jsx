@@ -59,8 +59,9 @@ function CrearActividad() {
           })
         ))
       }
+      window.scrollTo({ top: 0, behavior: 'smooth' })
       setExito(`¡Actividad "${formData.titulo}" creada con éxito! Redirigiendo...`)
-      setTimeout(() => navigate('/MisActividades'), 2000)
+      setTimeout(() => navigate('/MisActividades'), 2500)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -78,11 +79,12 @@ function CrearActividad() {
           Volver a mis actividades
         </button>
 
+        <Alert type="success" mensaje={exito} />
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white rounded-xl shadow-sm border border-[#E1E4E7] p-8">
             <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Nueva Actividad</h1>
             <p className="text-gray-500 text-sm mb-6">Completa los detalles de tu tarea o examen.</p>
-            <Alert type="success" mensaje={exito} />
             <ErrorAlert mensaje={error} />
 
             <div className="space-y-5 mt-4">
