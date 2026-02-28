@@ -5,12 +5,12 @@ import PrivateRoute from './components/PrivateRoute'
 import Home from './pages/Home'
 import Hoy from './pages/Hoy'
 import CrearActividad from './pages/CrearActividad'
-import Actividad from './pages/Actividad'
 import Progreso from './pages/Progreso'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import MisActividades from './pages/MisActividades'
-
+import DetalleActividad from './pages/Detalleactividad'
+import EditarActividad from './pages/Editaractividad'
 
 function App() {
   return (
@@ -23,14 +23,16 @@ function App() {
         <Route path="/hoy" element={<PrivateRoute><Hoy /></PrivateRoute>} />
         <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
         <Route path="/CrearActividad" element={<PrivateRoute><CrearActividad /></PrivateRoute>} />
-        <Route path="/actividad/:id" element={<PrivateRoute><Actividad /></PrivateRoute>} />
         <Route path="/progreso" element={<PrivateRoute><Progreso /></PrivateRoute>} />
-        <Route path="/actividades" element={<PrivateRoute> <MisActividades /> </PrivateRoute>} />
+        <Route path="/MisActividades" element={<PrivateRoute><MisActividades /></PrivateRoute>} />
+        <Route path="/actividad/:id" element={<PrivateRoute><DetalleActividad /></PrivateRoute>} />
+        <Route path="/actividad/:id/editar" element={<PrivateRoute><EditarActividad /></PrivateRoute>} />
+
         {/* Rutas de autenticación */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
-    </Router >
+    </Router>
   )
 }
 
