@@ -16,7 +16,7 @@ function useSubtareas(actividadId, inicial = []) {
             const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/`, {
                 method: "POST", headers, body: JSON.stringify(sub)
             })
-            if (!res.ok) throw new Error("Error al guardar subtarea")
+            if (!res.ok) throw new Error("Error al guardar subactividad")
             const nueva = await res.json()
             setSubtareas((prev) => [...prev, nueva])
         } finally {
