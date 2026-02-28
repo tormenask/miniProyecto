@@ -1,35 +1,20 @@
-// Página de inicio de sesión.
-// Implementa las 10 reglas generales de UX (Heurísticas de Nielsen):
-//  1. Visibilidad del estado del sistema   → spinner de carga, border de foco
-//  2. Coincidencia con el mundo real       → lenguaje natural en español
-//  3. Control y libertad del usuario       → mostrar/ocultar contraseña
-//  4. Consistencia y estándares            → estilos coherentes con Register
-//  5. Prevención de errores                → validación antes de enviar
-//  6. Reconocimiento antes que recuerdo    → labels siempre visibles (no solo placeholder)
-//  7. Flexibilidad y eficiencia de uso     → autofocus en primer campo, submit con Enter
-//  8. Diseño estético y minimalista        → solo la información necesaria
-//  9. Recuperación de errores              → mensajes de error específicos y útiles
-// 10. Ayuda y documentación               → texto de apoyo debajo del formulario
-
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
-import { LogIn, Eye, EyeOff, AlertCircle, Loader } from 'lucide-react'
+import { LogIn, Eye, EyeOff, Loader } from 'lucide-react'
+import ErrorAlert from '../components/ErrorAlert'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
 export default function Login() {
   const navigate = useNavigate()
   const usernameRef = useRef(null)
-
   const [form, setForm] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  useEffect(() => {
-    usernameRef.current?.focus()
-  }, [])
+  useEffect(() => { usernameRef.current?.focus() }, [])
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -39,15 +24,8 @@ export default function Login() {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-
-    if (!form.username.trim()) {
-      setError('Por favor ingresa tu nombre de usuario.')
-      return
-    }
-    if (!form.password) {
-      setError('Por favor ingresa tu contraseña.')
-      return
-    }
+    if (!form.username.trim()) { setError('Por favor ingresa tu nombre de usuario.'); return }
+    if (!form.password) { setError('Por favor ingresa tu contraseña.'); return }
 
     setLoading(true)
     try {
@@ -55,11 +33,9 @@ export default function Login() {
         username: form.username,
         password: form.password,
       })
-
       localStorage.setItem('access_token', response.data.access)
       localStorage.setItem('refresh_token', response.data.refresh)
       localStorage.setItem('username', form.username)
-
       navigate('/home')
     } catch (err) {
       if (err.response?.status === 401) {
@@ -76,30 +52,20 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
-
-      {/* Navbar */}
-      <nav className="bg-white px-8 py-3 flex items-center justify-between border-b border-gray-200">
+      <nav className="bg-white px-8 py-3 flex items-center border-b border-gray-200">
         <div className="font-bold text-base flex items-center gap-2">
           <LogIn size={20} /> Gestión de Tareas
         </div>
       </nav>
 
-      {/* Contenido */}
       <div className="px-8 py-12 text-center">
         <h1 className="text-3xl font-bold mb-2">Iniciar sesión</h1>
         <p className="text-gray-500 mb-10">Ingresa tus datos para continuar</p>
 
         <div className="bg-white rounded-xl p-8 shadow-sm max-w-md mx-auto text-left">
+          <ErrorAlert mensaje={error} />
 
-          {error && (
-            <div role="alert" className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-6 text-sm flex items-start gap-2">
-              <AlertCircle size={16} className="shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-
+          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5 mt-2">
             <div>
               <label htmlFor="username" className="block text-sm font-medium mb-1">Usuario</label>
               <input
@@ -144,21 +110,14 @@ export default function Login() {
               disabled={loading}
               className="bg-black text-white font-bold rounded-lg py-3 px-4 flex items-center justify-center gap-2 w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? (
-                <><Loader size={16} className="animate-spin" /> Ingresando...</>
-              ) : (
-                'Ingresar'
-              )}
+              {loading ? <><Loader size={16} className="animate-spin" /> Ingresando...</> : 'Ingresar'}
             </button>
           </form>
 
           <p className="text-center text-sm text-gray-500 mt-6">
             ¿No tienes cuenta?{' '}
-            <Link to="/register" className="font-semibold underline text-black">
-              Regístrate aquí
-            </Link>
+            <Link to="/register" className="font-semibold underline text-black">Regístrate aquí</Link>
           </p>
-
         </div>
       </div>
     </div>

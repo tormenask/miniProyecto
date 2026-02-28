@@ -14,14 +14,14 @@ function Navbar() {
             </div>
             <div className="flex items-center gap-4">
                 <button
-                    onClick={() => navigate("/")}
+                    onClick={() => navigate("/home")}
                     className="bg-black text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2"
                 >
                     <HomeIcon size={16} /> Inicio
                 </button>
                 <button
-                    onClick={() => navigate("/hoy")}
-                    className="font-bold flex items-center gap-2"
+                    disabled
+                    className="font-bold flex items-center gap-2 opacity-40 cursor-not-allowed"
                 >
                     <CalendarClock size={16} /> Vista Hoy
                 </button>
