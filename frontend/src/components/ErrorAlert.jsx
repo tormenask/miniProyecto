@@ -1,13 +1,7 @@
-import { AlertCircle } from "lucide-react"
+// Mantiene compatibilidad con el uso existente en todas las páginas.
+// Delega a Alert con type="danger".
+import Alert from './Alert'
 
-function ErrorAlert({ mensaje }) {
-    if (!mensaje) return null
-    return (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
-            <AlertCircle size={16} />
-            <p className="text-sm font-medium">{mensaje}</p>
-        </div>
-    )
+export default function ErrorAlert({ mensaje }) {
+  return <Alert mensaje={mensaje} type="danger" />
 }
-
-export default ErrorAlert
