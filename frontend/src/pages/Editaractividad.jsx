@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Save, ArrowLeft, Loader2 } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import ErrorAlert from '../components/ErrorAlert'
+import Alert from '../components/Alert'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 const inputCls = 'w-full px-4 py-2.5 border border-[#E1E4E7] rounded-lg text-sm text-[#1A1A1A] focus:ring-2 focus:ring-brand outline-none transition-all'
@@ -14,6 +15,7 @@ function EditarActividad() {
   const [cargando, setCargando] = useState(true)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState(null)
+  const [exito, setExito] = useState(null)
 
   const [formData, setFormData] = useState({
     titulo: '', tipo: 'other', curso: '', descripcion: '',
@@ -66,7 +68,8 @@ function EditarActividad() {
         const errData = await res.json()
         throw new Error(res.status === 400 ? Object.values(errData).flat().join(' ') : 'Error al guardar. Verifica la conexión.')
       }
-      navigate(`/actividad/${id}`)
+      setExito('Los cambios fueron guardados con éxito. Volviendo al detalle...')
+      setTimeout(() => navigate(`/actividad/${id}`), 2000)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -100,6 +103,7 @@ function EditarActividad() {
           <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Editar Actividad</h1>
           <p className="text-gray-400 text-sm mb-6">Modifica los campos que necesites y guarda los cambios.</p>
 
+          <Alert type="success" mensaje={exito} />
           <ErrorAlert mensaje={error} />
 
           <form onSubmit={handleSubmit} className="space-y-5 mt-4">

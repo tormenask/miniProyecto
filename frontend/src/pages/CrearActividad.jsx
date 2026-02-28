@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Save, ArrowLeft, Loader2 } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import ErrorAlert from '../components/ErrorAlert'
+import Alert from '../components/Alert'
 import SubtareaList from '../components/SubtareaList'
 import useSubtareas from '../hooks/useSubtareas'
 
@@ -13,6 +14,7 @@ function CrearActividad() {
   const navigate = useNavigate()
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState(null)
+  const [exito, setExito] = useState(null)
   const { subtareas, agregar, eliminar, toggle } = useSubtareas(null)
 
   const [formData, setFormData] = useState({
@@ -57,7 +59,8 @@ function CrearActividad() {
           })
         ))
       }
-      navigate('/MisActividades')
+      setExito(`¡Actividad "${formData.titulo}" creada con éxito! Redirigiendo...`)
+      setTimeout(() => navigate('/MisActividades'), 2000)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -79,6 +82,7 @@ function CrearActividad() {
           <div className="bg-white rounded-xl shadow-sm border border-[#E1E4E7] p-8">
             <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Nueva Actividad</h1>
             <p className="text-gray-500 text-sm mb-6">Completa los detalles de tu tarea o examen.</p>
+            <Alert type="success" mensaje={exito} />
             <ErrorAlert mensaje={error} />
 
             <div className="space-y-5 mt-4">

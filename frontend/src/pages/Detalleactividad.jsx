@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Pencil, Trash2, Loader2, Calendar, BookOpen, Clock } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import ErrorAlert from '../components/ErrorAlert'
+import Alert from '../components/Alert'
 import SubtareaList from '../components/SubtareaList'
 import Modal from '../components/Modal'
 import useActividad from '../hooks/useActividad'
@@ -26,8 +27,9 @@ function DetalleActividad() {
   const { actividad, cargando, error } = useActividad(id)
   const { subtareas, setSubtareas, guardando, agregar, eliminar, toggle } = useSubtareas(id)
   const [eliminando, setEliminando]           = useState(false)
-  const [modalEliminar, setModalEliminar]     = useState(false)  // ← modal en lugar de inline
+  const [modalEliminar, setModalEliminar]     = useState(false)
   const [errorAccion, setErrorAccion]         = useState(null)
+  const [exitoAccion, setExitoAccion]         = useState(null)
 
   const token   = localStorage.getItem('access_token')
   const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
@@ -46,7 +48,9 @@ function DetalleActividad() {
     try {
       const res = await fetch(`${API_URL}/api/activities/${id}/`, { method: 'DELETE', headers })
       if (!res.ok) throw new Error('Error al eliminar la actividad.')
-      navigate('/MisActividades')
+      setModalEliminar(false)
+      setExitoAccion('Actividad eliminada correctamente. Redirigiendo...')
+      setTimeout(() => navigate('/MisActividades'), 1500)
     } catch (err) {
       setErrorAccion(err.message)
       setEliminando(false)
@@ -88,6 +92,7 @@ function DetalleActividad() {
           Volver a mis actividades
         </button>
 
+        <Alert type="success" mensaje={exitoAccion} />
         <ErrorAlert mensaje={errorAccion} />
 
         {/* Card principal */}
