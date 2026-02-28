@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import PropTypes from 'prop-types'
 
 // ─── Configuración visual por tipo ────────────────────────────────────────────
 const TYPE_CONFIG = {
@@ -81,15 +82,15 @@ const TYPE_CONFIG = {
 
 // ─── Componente principal ──────────────────────────────────────────────────────
 export default function Modal({
-  isOpen       = false,
-  type         = 'info',
-  title        = '',
-  message      = '',
-  details      = '',          // texto secundario opcional (stack trace, etc.)
-  confirmLabel = 'Aceptar',
-  cancelLabel  = 'Cancelar',
-  onClose,                    // siempre requerido
-  onConfirm,                  // solo para type="confirm"
+  isOpen          = false,
+  type            = 'info',
+  title           = '',
+  message         = '',
+  details         = '',          // texto secundario opcional (stack trace, etc.)
+  confirmLabel    = 'Aceptar',
+  cancelLabel     = 'Cancelar',
+  onClose,                       // siempre requerido
+  onConfirm,                     // solo para type="confirm"
   closeOnBackdrop = true,
 }) {
   const config     = TYPE_CONFIG[type] ?? TYPE_CONFIG.info
@@ -257,4 +258,18 @@ export function useModal() {
     })
 
   return { modal, closeModal, showError, showWarning, showSuccess, showInfo, showConfirm }
+}
+
+// ─── PropTypes validation ─────────────────────────────────────────────────────
+Modal.propTypes = {
+  isOpen:          PropTypes.bool,
+  type:            PropTypes.oneOf(['error', 'warning', 'success', 'info', 'confirm']),
+  title:           PropTypes.string,
+  message:         PropTypes.string,
+  details:         PropTypes.string,
+  confirmLabel:    PropTypes.string,
+  cancelLabel:     PropTypes.string,
+  onClose:         PropTypes.func,
+  onConfirm:       PropTypes.func,
+  closeOnBackdrop: PropTypes.bool,
 }
