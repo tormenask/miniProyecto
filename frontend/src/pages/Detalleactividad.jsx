@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { ArrowLeft, Pencil, Trash2, Loader2, Calendar, BookOpen, Clock } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import ErrorAlert from '../components/ErrorAlert'
-import Alert from '../components/Alert'
+import Toast from '../components/Toast'
 import SubtareaList from '../components/SubtareaList'
 import Modal from '../components/Modal'
 import useActividad from '../hooks/useActividad'
@@ -24,12 +24,13 @@ const TIPO_COLORS = {
 function DetalleActividad() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const { actividad, cargando, error } = useActividad(id)
   const { subtareas, setSubtareas, guardando, agregar, eliminar, toggle } = useSubtareas(id)
-  const [eliminando, setEliminando]           = useState(false)
-  const [modalEliminar, setModalEliminar]     = useState(false)
-  const [errorAccion, setErrorAccion]         = useState(null)
-  const [exitoAccion, setExitoAccion]         = useState(null)
+  const [eliminando, setEliminando]       = useState(false)
+  const [modalEliminar, setModalEliminar] = useState(false)
+  const [errorAccion, setErrorAccion]     = useState(null)
+  const [exito, setExito]                 = useState(location.state?.exito || null)
 
   const token   = localStorage.getItem('access_token')
   const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
@@ -48,10 +49,7 @@ function DetalleActividad() {
     try {
       const res = await fetch(`${API_URL}/api/activities/${id}/`, { method: 'DELETE', headers })
       if (!res.ok) throw new Error('Error al eliminar la actividad.')
-      setModalEliminar(false)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      setExitoAccion('Actividad eliminada correctamente. Redirigiendo...')
-      setTimeout(() => navigate('/MisActividades'), 2000)
+      navigate('/MisActividades', { state: { exito: 'Actividad eliminada correctamente.' } })
     } catch (err) {
       setErrorAccion(err.message)
       setEliminando(false)
@@ -93,7 +91,7 @@ function DetalleActividad() {
           Volver a mis actividades
         </button>
 
-        <Alert type="success" mensaje={exitoAccion} />
+        <Toast mensaje={exito} duracion={2500} onClose={() => setExito(null)} />
         <ErrorAlert mensaje={errorAccion} />
 
         {/* Card principal */}

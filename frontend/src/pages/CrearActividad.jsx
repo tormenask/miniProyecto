@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { Save, ArrowLeft, Loader2 } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import ErrorAlert from '../components/ErrorAlert'
-import Alert from '../components/Alert'
 import SubtareaList from '../components/SubtareaList'
 import useSubtareas from '../hooks/useSubtareas'
 
@@ -14,7 +13,6 @@ function CrearActividad() {
   const navigate = useNavigate()
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState(null)
-  const [exito, setExito] = useState(null)
   const { subtareas, agregar, eliminar, toggle } = useSubtareas(null)
 
   const [formData, setFormData] = useState({
@@ -59,9 +57,7 @@ function CrearActividad() {
           })
         ))
       }
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      setExito(`¡Actividad "${formData.titulo}" creada con éxito! Redirigiendo...`)
-      setTimeout(() => navigate('/MisActividades'), 2500)
+      navigate('/MisActividades', { state: { exito: `¡Actividad "${formData.titulo}" creada con éxito!` } })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -78,8 +74,6 @@ function CrearActividad() {
           <ArrowLeft size={16} className="mr-2" />
           Volver a mis actividades
         </button>
-
-        <Alert type="success" mensaje={exito} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white rounded-xl shadow-sm border border-[#E1E4E7] p-8">
