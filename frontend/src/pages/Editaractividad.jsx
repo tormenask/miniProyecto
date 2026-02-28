@@ -66,7 +66,7 @@ function EditarActividad() {
         const errData = await res.json()
         throw new Error(res.status === 400 ? Object.values(errData).flat().join(' ') : 'Error al guardar. Verifica la conexión.')
       }
-      navigate(`/actividad/${id}`)
+      navigate(`/actividad/${id}`, { state: { exito: 'Los cambios fueron guardados con éxito.' } })
     } catch (err) {
       setError(err.message)
     } finally {

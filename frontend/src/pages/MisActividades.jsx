@@ -1,15 +1,20 @@
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { LayoutList, Calendar, ChevronRight, Loader2, Clock, BookOpen, Plus } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import ErrorAlert from '../components/ErrorAlert'
+import Toast from '../components/Toast'
 import useActividades from '../hooks/useActividades'
 
 function MisActividades() {
   const { actividades, cargando, error } = useActividades()
   const navigate = useNavigate()
+  const location = useLocation()
+  const [exito, setExito] = useState(location.state?.exito || null)
 
   return (
     <div className="min-h-screen bg-app-bg">
+      <Toast mensaje={exito} duracion={2500} onClose={() => setExito(null)} />
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 py-10">
 

@@ -57,7 +57,7 @@ function CrearActividad() {
           })
         ))
       }
-      navigate('/MisActividades')
+      navigate('/MisActividades', { state: { exito: `¡Actividad "${formData.titulo}" creada con éxito!` } })
     } catch (err) {
       setError(err.message)
     } finally {
