@@ -22,6 +22,7 @@ function EditarActividad() {
         fecha_limite: "",
     });
 
+<<<<<<< Updated upstream
     const token = localStorage.getItem("access_token");
     const headers = {
         Authorization: `Bearer ${token}`,
@@ -115,6 +116,31 @@ function EditarActividad() {
                 </div>
             </div>
         );
+=======
+  const token = localStorage.getItem('access_token')
+  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+
+  useEffect(() => {
+    const cargar = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/activities/${id}/`, { headers })
+        if (res.status === 401) { localStorage.removeItem('access_token'); throw new Error('Sesión expirada. Inicia sesión de nuevo.') }
+        if (!res.ok) throw new Error('No se pudo cargar la actividad.')
+        const data = await res.json()
+        setFormData({
+          titulo: data.titulo || '',
+          tipo: data.tipo || 'other',
+          curso: data.curso || '',
+          descripcion: data.descripcion || '',
+          fecha_evento: data.fecha_evento ? data.fecha_evento.slice(0, 16) : '',
+          fecha_limite: data.fecha_limite || '',
+        })
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setCargando(false)
+      }
+>>>>>>> Stashed changes
     }
 
     return (

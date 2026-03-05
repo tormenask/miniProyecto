@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 // Página principal de la aplicación, visible luego de iniciar sesión.
 // Muestra un mensaje de bienvenida personalizado con el nombre del usuario.
 import { useState, useEffect } from 'react'
@@ -59,6 +60,25 @@ function Hoy() {
       <main className="max-w-4xl mx-auto p-6">
         <p className="text-gray-400 text-sm">Aquí verás tus actividades de hoy.</p>
       </main>
+=======
+import Navbar from "../components/Navbar"
+import TodayView from "../components/hoy/TodayView"
+import useHoy from "../hooks/useHoy"
+
+function Hoy() {
+  const { tasks, loading, error, fetchTasks } = useHoy()
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <Navbar />
+      <div className="max-w-xl mx-auto px-6 py-10">
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Vista de Hoy</h1>
+        <p className="text-sm text-gray-500 mb-8">
+          {new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" })}
+        </p>
+        <TodayView loading={loading} error={error} tasks={tasks} retryFetch={fetchTasks} />
+      </div>
+>>>>>>> Stashed changes
     </div>
   )
 }
