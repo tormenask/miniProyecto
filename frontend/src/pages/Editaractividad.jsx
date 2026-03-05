@@ -20,110 +20,9 @@ function EditarActividad() {
     fecha_evento: '', fecha_limite: '',
   })
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-    const token = localStorage.getItem("access_token");
-    const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-    };
-
-    // ── Cargar datos actuales de la actividad ─────────────────────────────────
-    useEffect(() => {
-        const cargar = async () => {
-            try {
-                const res = await fetch(`${API_URL}/api/activities/${id}/`, { headers });
-
-                if (res.status === 401) {
-                    localStorage.removeItem("access_token");
-                    throw new Error("Sesión expirada. Inicia sesión de nuevo.");
-                }
-                if (!res.ok) throw new Error("No se pudo cargar la actividad.");
-
-                const data = await res.json();
-
-                // Formatear fecha_evento para datetime-local (quitar los segundos y la Z)
-                let fechaEventoFormatted = "";
-                if (data.fecha_evento) {
-                    fechaEventoFormatted = data.fecha_evento.slice(0, 16); // "YYYY-MM-DDTHH:MM"
-                }
-
-                setFormData({
-                    titulo: data.titulo || "",
-                    tipo: data.tipo || "other",
-                    curso: data.curso || "",
-                    descripcion: data.descripcion || "",
-                    fecha_evento: fechaEventoFormatted,
-                    fecha_limite: data.fecha_limite || "",
-                });
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setCargando(false);
-            }
-        };
-        cargar();
-    }, [id]);
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    // ── Guardar cambios con PUT ───────────────────────────────────────────────
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setGuardando(true);
-        setError(null);
-
-        try {
-            const payload = {
-                ...formData,
-                fecha_evento: formData.fecha_evento || null,
-                fecha_limite: formData.fecha_limite || null,
-            };
-
-            const res = await fetch(`${API_URL}/api/activities/${id}/`, {
-                method: "PUT",
-                headers,
-                body: JSON.stringify(payload),
-            });
-
-            if (!res.ok) {
-                const errData = await res.json();
-                if (res.status === 400) {
-                    throw new Error(Object.values(errData).flat().join(" "));
-                }
-                throw new Error("Error al guardar. Verifica la conexión.");
-            }
-
-            navigate(`/actividad/${id}`);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setGuardando(false);
-        }
-    };
-
-    // ── Loading / Error ───────────────────────────────────────────────────────
-    if (cargando) {
-        return (
-            <div className="min-h-screen bg-gray-100">
-                <Navbar />
-                <div className="flex flex-col items-center justify-center py-32">
-                    <Loader2 className="animate-spin text-blue-500 mb-4" size={40} />
-                    <p className="text-gray-400 animate-pulse">Cargando datos...</p>
-                </div>
-            </div>
-        );
-=======
-  const token = localStorage.getItem('access_token')
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
-
-=======
   const token   = localStorage.getItem('access_token')
   const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
 
->>>>>>> main
   useEffect(() => {
     const cargar = async () => {
       try {
@@ -132,17 +31,10 @@ function EditarActividad() {
         if (!res.ok) throw new Error('No se pudo cargar la actividad.')
         const data = await res.json()
         setFormData({
-<<<<<<< HEAD
-          titulo: data.titulo || '',
-          tipo: data.tipo || 'other',
-          curso: data.curso || '',
-          descripcion: data.descripcion || '',
-=======
           titulo:       data.titulo       || '',
           tipo:         data.tipo         || 'other',
           curso:        data.curso        || '',
           descripcion:  data.descripcion  || '',
->>>>>>> main
           fecha_evento: data.fecha_evento ? data.fecha_evento.slice(0, 16) : '',
           fecha_limite: data.fecha_limite || '',
         })
@@ -151,10 +43,6 @@ function EditarActividad() {
       } finally {
         setCargando(false)
       }
-<<<<<<< HEAD
->>>>>>> Stashed changes
-=======
->>>>>>> main
     }
     cargar()
   }, [id])
