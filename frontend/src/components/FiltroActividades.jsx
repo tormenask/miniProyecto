@@ -77,7 +77,7 @@ function CustomDropdown({ options, value, onChange, minWidth = 'min-w-[180px]' }
 
             {open && (
                 <div className="absolute left-0 top-full mt-1 w-full bg-white rounded-xl border border-gray-200
-          shadow-lg z-30 overflow-hidden">
+          shadow-lg z-30">
                     {options.map((opt, i) => {
                         const isSelected = opt.value === value
                         return (
@@ -138,7 +138,7 @@ export default function FiltroActividades({ actividades = [], onChange, classNam
     }
 
     return (
-        <div className={`bg-white rounded-2xl border border-gray-200 overflow-hidden ${className}`}>
+        <div className={`bg-white rounded-2xl border border-gray-200 ${className}`}>
 
             {/* ── Encabezado de la card ─────────────────────────────────────── */}
             <div className="px-5 pt-4 pb-3 border-b border-gray-100">
