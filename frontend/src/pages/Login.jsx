@@ -11,11 +11,18 @@ export default function Login() {
   const usernameRef = useRef(null)
   const [form, setForm] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
+  const [sessionMsg, setSessionMsg] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  // UX #7 Eficiencia: autofocus al cargar
-  useEffect(() => { usernameRef.current?.focus() }, [])
+  // UX #7 Eficiencia: autofocus al cargar; mostrar aviso si la sesión expiró
+  useEffect(() => {
+    usernameRef.current?.focus()
+    if (localStorage.getItem('session_expired')) {
+      setSessionMsg('Tu sesión expiró. Inicia sesión de nuevo.')
+      localStorage.removeItem('session_expired')
+    }
+  }, [])
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -71,6 +78,7 @@ export default function Login() {
         <p className="text-gray-500 mb-10">Ingresa tus datos para continuar</p>
 
         <div className="bg-white rounded-xl p-8 shadow-sm max-w-md mx-auto text-left border border-[#E1E4E7]">
+          <Alert mensaje={sessionMsg} type="warning" />
           {/* UX #9 Recuperación: alerta danger unificada */}
           <Alert mensaje={error} type="danger" />
 
