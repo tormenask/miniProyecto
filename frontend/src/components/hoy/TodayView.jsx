@@ -18,9 +18,9 @@ function TodayView({ loading, error, vencidas, hoy, proximas, retryFetch }) {
         <div className="space-y-6">
             <SortRules />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                <Section label="Vencidas" color="text-red-400" items={vencidas} onClickItem={(id) => navigate(`/actividad/${id}`)} />
-                <Section label="Hoy" color="text-blue-500" items={hoy} onClickItem={(id) => navigate(`/actividad/${id}`)} />
-                <Section label="Próximas" color="text-green-500" items={proximas} onClickItem={(id) => navigate(`/actividad/${id}`)} />
+                <Section label="Vencidas" color="text-red-400" items={vencidas} onClickItem={(id) => navigate(`/actividad/${id}`, { state: { from: '/hoy' } })} />
+                <Section label="Hoy" color="text-blue-500" items={hoy} onClickItem={(id) => navigate(`/actividad/${id}`, { state: { from: '/hoy' } })} />
+                <Section label="Próximas" color="text-green-500" items={proximas} onClickItem={(id) => navigate(`/actividad/${id}`, { state: { from: '/hoy' } })} />
             </div>
         </div>
     )
