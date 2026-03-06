@@ -13,8 +13,8 @@ function TaskCard({ actividad, onClick }) {
             </div>
             {actividad.fecha_limite && (
                 <span className="text-xs text-red-500 font-bold shrink-0">
-                    {new Date(actividad.fecha_limite + "T00:00:00").toLocaleDateString("es-ES", {
-                        day: "numeric", month: "short"
+                    {new Date(actividad.fecha_limite).toLocaleDateString("es-ES", {
+                        timeZone: "America/Bogota", day: "numeric", month: "short"
                     })}
                 </span>
             )}

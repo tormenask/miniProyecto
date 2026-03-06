@@ -1,7 +1,9 @@
 // Componente raíz que define todas las rutas de la aplicación.
 // Las rutas protegidas redirigen a /login si el usuario no tiene sesión activa.
+import { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import PrivateRoute from './components/PrivateRoute'
+import { refreshAccessToken } from './utils/auth'
 import Home from './pages/Home'
 import Hoy from './pages/Hoy'
 import CrearActividad from './pages/CrearActividad'
@@ -12,7 +14,25 @@ import MisActividades from './pages/MisActividades'
 import DetalleActividad from './pages/Detalleactividad'
 import EditarActividad from './pages/Editaractividad'
 
+// Renueva el access token cada 14 minutos mientras haya sesión activa.
+// Si el refresh falla (token expirado por inactividad), redirige al login.
+const RENEWAL_INTERVAL = 14 * 60 * 1000
+
 function App() {
+  useEffect(() => {
+    if (!localStorage.getItem('refresh_token')) return
+    const interval = setInterval(async () => {
+      if (!localStorage.getItem('refresh_token')) return
+      try {
+        await refreshAccessToken()
+      } catch {
+        localStorage.setItem('session_expired', '1')
+        window.location.href = '/login'
+      }
+    }, RENEWAL_INTERVAL)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <Router>
       <Routes>

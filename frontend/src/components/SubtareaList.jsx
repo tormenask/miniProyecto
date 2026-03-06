@@ -6,7 +6,7 @@ import SubtareaItem from './SubtareaItem'
 import SubtareaForm from './SubtareaForm'
 import Modal from './Modal'
 
-function SubtareaList({ subtareas, onAgregar, onToggle, onEliminar, guardando = false }) {
+function SubtareaList({ subtareas, onAgregar, onToggle, onEliminar, guardando = false, fechaEvento, fechaLimite }) {
   const [modalAbierto, setModalAbierto] = useState(false)
 
   const totalHoras = subtareas.reduce((acc, s) => acc + parseFloat(s.horas_estimadas || 0), 0)
@@ -76,6 +76,8 @@ function SubtareaList({ subtareas, onAgregar, onToggle, onEliminar, guardando = 
           onAgregar={handleAgregar}
           onCancelar={() => setModalAbierto(false)}
           guardando={guardando}
+          fechaEvento={fechaEvento}
+          fechaLimite={fechaLimite}
         />
       </Modal>
     </div>

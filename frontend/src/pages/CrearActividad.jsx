@@ -1,29 +1,73 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Save, ArrowLeft, Loader2 } from 'lucide-react'
+import { Save, ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import ErrorAlert from '../components/ErrorAlert'
 import SubtareaList from '../components/SubtareaList'
+import Select from '../components/Select'
 import useSubtareas from '../hooks/useSubtareas'
+import { CURSOS } from '../utils/cursos'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
-const inputCls = 'w-full px-4 py-2.5 border border-[#E1E4E7] rounded-lg text-sm text-[#1A1A1A] focus:ring-2 focus:ring-brand outline-none transition-all'
+
+const TIPOS = [
+  { value: 'exam',     label: 'Examen' },
+  { value: 'quiz',     label: 'Quiz' },
+  { value: 'workshop', label: 'Taller' },
+  { value: 'project',  label: 'Proyecto' },
+  { value: 'other',    label: 'Otro' },
+]
+
+// Clases base del input — el borde se aplica condicionalmente
+const baseInput = 'w-full px-4 py-2.5 rounded-lg text-sm text-[#1A1A1A] focus:ring-2 focus:ring-brand outline-none transition-all border'
+const inputCls  = (err) => `${baseInput} ${err ? 'border-danger-border' : 'border-[#E1E4E7]'}`
+
+function FieldError({ msg }) {
+  if (!msg) return null
+  return (
+    <p className="flex items-center gap-1.5 text-xs text-danger-text mt-1.5 font-medium">
+      <AlertCircle size={12} className="shrink-0" /> {msg}
+    </p>
+  )
+}
 
 function CrearActividad() {
   const navigate = useNavigate()
   const [cargando, setCargando] = useState(false)
-  const [error, setError] = useState(null)
+  const [error, setError]       = useState(null)
+  const [errores, setErrores]   = useState({})
   const { subtareas, agregar, eliminar, toggle } = useSubtareas(null)
 
   const [formData, setFormData] = useState({
     titulo: '', tipo: 'other', curso: '', descripcion: '',
-    fecha_evento: '', fecha_limite: ''
+    fecha_evento: '', fecha_limite: '',
   })
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value })
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+    if (errores[name]) setErrores((prev) => ({ ...prev, [name]: null }))
+  }
+
+  const validate = () => {
+    const ahora = new Date()
+    const errs  = {}
+    if (!formData.titulo.trim())    errs.titulo       = 'El título es obligatorio.'
+    if (!formData.curso)            errs.curso        = 'Selecciona un curso.'
+    if (!formData.fecha_evento)     errs.fecha_evento = 'La fecha del evento es obligatoria.'
+    else if (new Date(formData.fecha_evento) < ahora)
+                                    errs.fecha_evento = 'La fecha del evento no puede ser en el pasado.'
+    if (!formData.fecha_limite)     errs.fecha_limite = 'La fecha límite es obligatoria.'
+    else if (new Date(formData.fecha_limite) < ahora)
+                                    errs.fecha_limite = 'La fecha límite no puede ser en el pasado.'
+    return errs
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    const errs = validate()
+    if (Object.keys(errs).length > 0) { setErrores(errs); return }
+
     setCargando(true)
     setError(null)
     try {
@@ -32,14 +76,14 @@ function CrearActividad() {
 
       const payload = {
         ...formData,
-        fecha_evento: formData.fecha_evento || null,
-        fecha_limite: formData.fecha_limite || null
+        fecha_evento: formData.fecha_evento ? new Date(formData.fecha_evento).toISOString() : null,
+        fecha_limite: formData.fecha_limite ? new Date(formData.fecha_limite).toISOString() : null,
       }
 
       const response = await fetch(`${API_URL}/api/activities/`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       })
 
       if (!response.ok) {
@@ -53,7 +97,7 @@ function CrearActividad() {
           fetch(`${API_URL}/api/activities/${actividad.id}/subtasks/`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify(sub)
+            body: JSON.stringify(sub),
           })
         ))
       }
@@ -75,56 +119,90 @@ function CrearActividad() {
           Volver a mis actividades
         </button>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
           <div className="bg-white rounded-xl shadow-sm border border-[#E1E4E7] p-8">
             <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Nueva Actividad</h1>
             <p className="text-gray-500 text-sm mb-6">Completa los detalles de tu tarea o examen.</p>
             <ErrorAlert mensaje={error} />
 
             <div className="space-y-5 mt-4">
+              {/* Título */}
               <div>
                 <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Título *</label>
-                <input type="text" name="titulo" required value={formData.titulo} onChange={handleChange}
-                  placeholder="Ej: Examen Final de Cálculo" className={inputCls} />
+                <input
+                  type="text" name="titulo" value={formData.titulo} onChange={handleChange}
+                  placeholder="Ej: Examen Final de Cálculo"
+                  className={inputCls(errores.titulo)}
+                />
+                <FieldError msg={errores.titulo} />
               </div>
+
+              {/* Curso + Tipo */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Curso / Materia *</label>
-                  <input type="text" name="curso" required value={formData.curso} onChange={handleChange}
-                    placeholder="Ej: Matemáticas" className={inputCls} />
+                  <Select
+                    name="curso"
+                    value={formData.curso}
+                    onChange={handleChange}
+                    options={CURSOS}
+                    placeholder="Selecciona un curso"
+                    error={!!errores.curso}
+                  />
+                  <FieldError msg={errores.curso} />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Tipo</label>
-                  <select name="tipo" value={formData.tipo} onChange={handleChange} className={`${inputCls} bg-white`}>
-                    <option value="exam">Examen</option>
-                    <option value="quiz">Quiz</option>
-                    <option value="workshop">Taller</option>
-                    <option value="project">Proyecto</option>
-                    <option value="other">Otro</option>
-                  </select>
+                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">
+                    Tipo <span className="font-normal text-gray-400">(Opcional)</span>
+                  </label>
+                  <Select name="tipo" value={formData.tipo} onChange={handleChange} options={TIPOS} />
                 </div>
               </div>
+
+              {/* Descripción */}
               <div>
                 <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">
                   Descripción <span className="font-normal text-gray-400">(Opcional)</span>
                 </label>
-                <textarea name="descripcion" rows="3" value={formData.descripcion} onChange={handleChange}
-                  placeholder="Detalles adicionales..." className={`${inputCls} resize-none`} />
+                <textarea
+                  name="descripcion" rows="3" value={formData.descripcion} onChange={handleChange}
+                  placeholder="Detalles adicionales..."
+                  className={`${inputCls(false)} resize-none`}
+                />
               </div>
+
+              {/* Fechas */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha y Hora del Evento</label>
-                  <input type="datetime-local" name="fecha_evento" value={formData.fecha_evento} onChange={handleChange} className={inputCls} />
+                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha y Hora del Evento *</label>
+                  <input
+                    type="datetime-local" name="fecha_evento"
+                    value={formData.fecha_evento} onChange={handleChange}
+                    className={inputCls(errores.fecha_evento)}
+                  />
+                  <FieldError msg={errores.fecha_evento} />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha Límite de Entrega</label>
-                  <input type="date" name="fecha_limite" value={formData.fecha_limite} onChange={handleChange} className={inputCls} />
+                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha Límite de Entrega *</label>
+                  <input
+                    type="datetime-local" name="fecha_limite"
+                    value={formData.fecha_limite} onChange={handleChange}
+                    className={inputCls(errores.fecha_limite)}
+                  />
+                  <FieldError msg={errores.fecha_limite} />
                 </div>
               </div>
             </div>
           </div>
 
-          <SubtareaList subtareas={subtareas} onAgregar={agregar} onToggle={toggle} onEliminar={eliminar} />
+          <SubtareaList
+            subtareas={subtareas}
+            onAgregar={agregar}
+            onToggle={toggle}
+            onEliminar={eliminar}
+            fechaEvento={formData.fecha_evento}
+            fechaLimite={formData.fecha_limite}
+          />
 
           <button type="submit" disabled={cargando}
             className="w-full bg-brand hover:bg-brand-hover text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-colors">

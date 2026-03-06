@@ -32,6 +32,9 @@ function DetalleActividad() {
   const [errorAccion, setErrorAccion]     = useState(null)
   const [exito, setExito]                 = useState(location.state?.exito || null)
 
+  const from      = location.state?.from || '/MisActividades'
+  const fromLabel = from === '/hoy' ? 'Volver a Hoy' : 'Volver a mis actividades'
+
   const token   = localStorage.getItem('access_token')
   const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
 
@@ -49,7 +52,7 @@ function DetalleActividad() {
     try {
       const res = await fetch(`${API_URL}/api/activities/${id}/`, { method: 'DELETE', headers })
       if (!res.ok) throw new Error('Error al eliminar la actividad.')
-      navigate('/MisActividades', { state: { exito: 'Actividad eliminada correctamente.' } })
+      navigate(from, { state: { exito: 'Actividad eliminada correctamente.' } })
     } catch (err) {
       setErrorAccion(err.message)
       setEliminando(false)
@@ -61,9 +64,41 @@ function DetalleActividad() {
     return (
       <div className="min-h-screen bg-app-bg">
         <Navbar />
-        <div className="flex flex-col items-center justify-center py-32">
-          <Loader2 className="animate-spin text-brand mb-4" size={40} />
-          <p className="text-gray-400 animate-pulse">Cargando actividad...</p>
+        <div className="max-w-3xl mx-auto px-6 py-10">
+          <div className="h-4 bg-gray-200 rounded w-48 mb-6 animate-pulse" />
+
+          {/* Card principal skeleton */}
+          <div className="bg-white rounded-xl shadow-sm border border-[#E1E4E7] p-8 mb-6 animate-pulse">
+            <div className="flex items-start justify-between gap-4 mb-6">
+              <div className="flex-1 space-y-3">
+                <div className="h-6 bg-gray-100 rounded-full w-20" />
+                <div className="h-7 bg-gray-200 rounded w-2/3" />
+                <div className="h-4 bg-gray-100 rounded w-40" />
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <div className="h-9 w-20 bg-gray-100 rounded-lg" />
+                <div className="h-9 w-24 bg-gray-100 rounded-lg" />
+              </div>
+            </div>
+            <div className="h-14 bg-gray-50 rounded-xl mb-6" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="h-16 bg-blue-50 rounded-xl" />
+              <div className="h-16 bg-red-50 rounded-xl" />
+            </div>
+          </div>
+
+          {/* Subactividades skeleton */}
+          <div className="bg-white rounded-xl shadow-sm border border-[#E1E4E7] p-6 animate-pulse">
+            <div className="flex items-center justify-between mb-5">
+              <div className="h-5 bg-gray-200 rounded w-32" />
+              <div className="h-9 w-24 bg-gray-100 rounded-lg" />
+            </div>
+            <div className="space-y-3">
+              {[0, 1].map((i) => (
+                <div key={i} className="h-12 bg-gray-50 rounded-lg" />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -85,10 +120,10 @@ function DetalleActividad() {
       <Navbar />
       <div className="max-w-3xl mx-auto px-6 py-10">
 
-        <button onClick={() => navigate('/MisActividades')}
+        <button onClick={() => navigate(from)}
           className="flex items-center text-gray-400 hover:text-brand mb-6 transition-colors text-sm">
           <ArrowLeft size={16} className="mr-2" />
-          Volver a mis actividades
+          {fromLabel}
         </button>
 
         <Toast mensaje={exito} duracion={2500} onClose={() => setExito(null)} />
@@ -112,7 +147,7 @@ function DetalleActividad() {
 
             <div className="flex items-center gap-2 shrink-0">
               {/* Botón secundario: borde #E1E4E7 */}
-              <button onClick={() => navigate(`/actividad/${id}/editar`)}
+              <button onClick={() => navigate(`/actividad/${id}/editar`, { state: { from } })}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#E1E4E7] text-gray-600 hover:border-brand hover:text-brand transition-all text-sm font-semibold">
                 <Pencil size={15} /> Editar
               </button>
@@ -138,7 +173,7 @@ function DetalleActividad() {
                   <p className="text-[10px] uppercase font-black text-blue-400 tracking-widest">Fecha del evento</p>
                   <p className="text-sm font-bold text-blue-800">
                     {new Date(actividad.fecha_evento).toLocaleString('es-ES', {
-                      weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
+                      timeZone: 'America/Bogota', weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
                     })}
                   </p>
                 </div>
@@ -150,8 +185,8 @@ function DetalleActividad() {
                 <div>
                   <p className="text-[10px] uppercase font-black text-danger-text tracking-widest">Fecha límite</p>
                   <p className="text-sm font-bold text-danger-text">
-                    {new Date(actividad.fecha_limite + 'T00:00:00').toLocaleDateString('es-ES', {
-                      weekday: 'long', day: 'numeric', month: 'long'
+                    {new Date(actividad.fecha_limite).toLocaleString('es-ES', {
+                      timeZone: 'America/Bogota', weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
                     })}
                   </p>
                 </div>
@@ -160,7 +195,15 @@ function DetalleActividad() {
           </div>
         </div>
 
-        <SubtareaList subtareas={subtareas} onAgregar={agregar} onToggle={toggle} onEliminar={eliminar} guardando={guardando} />
+        <SubtareaList
+          subtareas={subtareas}
+          onAgregar={agregar}
+          onToggle={toggle}
+          onEliminar={eliminar}
+          guardando={guardando}
+          fechaEvento={actividad.fecha_evento}
+          fechaLimite={actividad.fecha_limite}
+        />
       </div>
 
       {/* Modal de confirmación de eliminación */}

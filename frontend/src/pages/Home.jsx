@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { CalendarClock, Calendar, ListChecks } from 'lucide-react'
+import { CalendarClock, PlusCircle, Sun } from 'lucide-react'
 import Navbar from '../components/Navbar'
 
 function Home() {
@@ -15,10 +15,24 @@ function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
 
+          {/* Card Hoy */}
+          <div className="bg-white rounded-xl p-8 shadow-sm border border-[#E1E4E7] text-left flex flex-col justify-between">
+            <div>
+              <Sun size={40} className="text-brand mb-4" />
+              <h2 className="text-lg font-bold text-[#1A1A1A] mb-3">Hoy</h2>
+              <p className="text-gray-500 mb-8">Realiza seguimiento de tus actividades de hoy</p>
+            </div>
+            <button onClick={() => navigate('/hoy')}
+              className="bg-brand hover:bg-brand-hover text-white rounded-lg py-3 font-bold w-full transition-colors">
+              Ir a Hoy
+            </button>
+          </div>
+
+          {/* Card Mis Actividades */}
           <div className="bg-white rounded-xl p-8 shadow-sm border border-[#E1E4E7] text-left flex flex-col justify-between">
             <div>
               <CalendarClock size={40} className="text-brand mb-4" />
-              <h2 className="text-lg font-bold text-[#1A1A1A] mb-3">Vista Mis Actividades</h2>
+              <h2 className="text-lg font-bold text-[#1A1A1A] mb-3">Mis Actividades</h2>
               <p className="text-gray-500 mb-8">Ve tus prioridades urgentes organizadas por vencimiento</p>
             </div>
             <button onClick={() => navigate('/MisActividades')}
@@ -27,28 +41,16 @@ function Home() {
             </button>
           </div>
 
+          {/* Card Crear Actividad */}
           <div className="bg-white rounded-xl p-8 shadow-sm border border-[#E1E4E7] text-left flex flex-col justify-between">
             <div>
-              <Calendar size={40} className="text-brand mb-4" />
+              <PlusCircle size={40} className="text-brand mb-4" />
               <h2 className="text-lg font-bold text-[#1A1A1A] mb-3">Crear Actividad</h2>
               <p className="text-gray-500 mb-8">Crea y organiza nuevas actividades y subactividades</p>
             </div>
             <button onClick={() => navigate('/CrearActividad')}
               className="bg-brand hover:bg-brand-hover text-white rounded-lg py-3 font-bold w-full transition-colors">
               Ir a Crear Actividad
-            </button>
-          </div>
-
-          {/* Card deshabilitada: botón secundario con borde #E1E4E7 */}
-          <div className="bg-white rounded-xl p-8 shadow-sm border border-[#E1E4E7] text-left flex flex-col justify-between opacity-50">
-            <div>
-              <ListChecks size={40} className="text-gray-400 mb-4" />
-              <h2 className="text-lg font-bold text-[#1A1A1A] mb-3">Todas las Tareas</h2>
-              <p className="text-gray-500 mb-8">Gestiona todas tus actividades y subactividades</p>
-            </div>
-            <button disabled
-              className="border border-[#E1E4E7] text-gray-400 rounded-lg py-3 font-bold w-full cursor-not-allowed">
-              Próximamente
             </button>
           </div>
 

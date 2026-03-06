@@ -1,16 +1,41 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { LayoutList, Calendar, ChevronRight, Loader2, Clock, BookOpen, Plus } from 'lucide-react'
+import { LayoutList, Plus } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import ErrorAlert from '../components/ErrorAlert'
 import Toast from '../components/Toast'
+import ActividadCard from '../components/ActividadCard'
 import useActividades from '../hooks/useActividades'
+import Select from '../components/Select'
+import { CURSOS } from '../utils/cursos'
+
+const TIPOS_FILTRO = [
+  { value: '',         label: 'Todos los tipos' },
+  { value: 'exam',     label: 'Examen' },
+  { value: 'quiz',     label: 'Quiz' },
+  { value: 'workshop', label: 'Taller' },
+  { value: 'project',  label: 'Proyecto' },
+  { value: 'other',    label: 'Otro' },
+]
+
+const CURSOS_FILTRO = [
+  { value: '', label: 'Todos los cursos' },
+  ...CURSOS,
+]
 
 function MisActividades() {
   const { actividades, cargando, error } = useActividades()
   const navigate = useNavigate()
   const location = useLocation()
   const [exito, setExito] = useState(location.state?.exito || null)
+  const [filtroTipo, setFiltroTipo] = useState('')
+  const [filtroCurso, setFiltroCurso] = useState('')
+
+  const actividadesFiltradas = actividades.filter((act) => {
+    if (filtroTipo && act.tipo !== filtroTipo) return false
+    if (filtroCurso && act.curso !== filtroCurso) return false
+    return true
+  })
 
   return (
     <div className="min-h-screen bg-app-bg">
@@ -31,10 +56,57 @@ function MisActividades() {
           </button>
         </header>
 
+        {/* Filtros */}
         {cargando ? (
-          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-[#E1E4E7] shadow-sm">
-            <Loader2 className="animate-spin text-brand mb-4" size={40} />
-            <p className="text-gray-500 animate-pulse">Cargando tus actividades...</p>
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <div className="w-44 h-10 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="w-56 h-10 bg-gray-200 rounded-lg animate-pulse" />
+          </div>
+        ) : !error && actividades.length > 0 && (
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <Select
+              name="filtroTipo"
+              value={filtroTipo}
+              onChange={(e) => setFiltroTipo(e.target.value)}
+              options={TIPOS_FILTRO}
+              className="w-44"
+            />
+            <Select
+              name="filtroCurso"
+              value={filtroCurso}
+              onChange={(e) => setFiltroCurso(e.target.value)}
+              options={CURSOS_FILTRO}
+              className="w-56"
+            />
+            {(filtroTipo || filtroCurso) && (
+              <button
+                onClick={() => { setFiltroTipo(''); setFiltroCurso('') }}
+                className="px-3 py-2 text-sm text-gray-500 border border-[#E1E4E7] rounded-lg hover:border-gray-400 transition-colors"
+              >
+                Limpiar filtros
+              </button>
+            )}
+          </div>
+        )}
+
+        {cargando ? (
+          <div className="grid gap-4">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-[#E1E4E7] animate-pulse flex items-center justify-between">
+                <div className="flex items-center gap-5">
+                  <div className="w-12 h-12 bg-gray-100 rounded-xl shrink-0" />
+                  <div className="space-y-2.5">
+                    <div className="h-3.5 bg-gray-200 rounded w-48" />
+                    <div className="flex items-center gap-2">
+                      <div className="h-2.5 bg-gray-100 rounded w-24" />
+                      <div className="h-4 bg-gray-100 rounded w-14" />
+                    </div>
+                    <div className="h-5 bg-gray-100 rounded w-20" />
+                  </div>
+                </div>
+                <div className="w-5 h-5 bg-gray-100 rounded shrink-0" />
+              </div>
+            ))}
           </div>
         ) : error ? (
           <ErrorAlert mensaje={error} />
@@ -52,43 +124,22 @@ function MisActividades() {
               + Crear mi primera actividad
             </button>
           </div>
+        ) : actividadesFiltradas.length === 0 ? (
+          <div className="bg-white rounded-xl p-12 text-center shadow-sm border border-[#E1E4E7]">
+            <p className="text-gray-500">No hay actividades que coincidan con los filtros seleccionados.</p>
+            <button onClick={() => { setFiltroTipo(''); setFiltroCurso('') }}
+              className="text-brand font-bold hover:underline mt-3 block mx-auto transition-colors">
+              Limpiar filtros
+            </button>
+          </div>
         ) : (
           <div className="grid gap-4">
-            {actividades.map((act) => (
-              <div key={act.id} onClick={() => navigate(`/actividad/${act.id}`)}
-                className="group bg-white p-6 rounded-xl shadow-sm border border-[#E1E4E7] hover:border-brand/40 hover:shadow-md transition-all cursor-pointer flex items-center justify-between">
-                <div className="flex items-center gap-6">
-                  <div className="bg-app-bg p-4 rounded-xl text-gray-400 group-hover:bg-danger-bg group-hover:text-brand transition-colors">
-                    <Calendar size={28} />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-[#1A1A1A] group-hover:text-brand transition-colors">
-                      {act.titulo}
-                    </h3>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-gray-500">
-                      <div className="flex items-center gap-1"><BookOpen size={14} />{act.curso}</div>
-                      <span className="bg-card-head text-gray-600 px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider">
-                        {act.tipo}
-                      </span>
-                    </div>
-                    {act.fecha_limite && (
-                      <div className="flex items-center gap-2 mt-3 text-xs font-bold text-danger-text bg-danger-bg w-fit px-2 py-1 rounded-md">
-                        <Clock size={12} />
-                        Entrega: {new Date(act.fecha_limite).toLocaleDateString('es-ES', {
-                          weekday: 'short', day: 'numeric', month: 'short'
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="hidden sm:block text-right">
-                    <p className="text-[10px] uppercase font-black text-gray-300 tracking-widest">Creado</p>
-                    <p className="text-xs text-gray-400">{new Date(act.fecha_creacion).toLocaleDateString()}</p>
-                  </div>
-                  <ChevronRight className="text-gray-300 group-hover:text-brand group-hover:translate-x-1 transition-all" />
-                </div>
-              </div>
+            {actividadesFiltradas.map((act) => (
+              <ActividadCard
+                key={act.id}
+                actividad={act}
+                onClick={() => navigate(`/actividad/${act.id}`, { state: { from: '/MisActividades' } })}
+              />
             ))}
           </div>
         )}
