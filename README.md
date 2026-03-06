@@ -4,17 +4,21 @@ Frontend del Proyecto Integrador I, construido con **React**, **Vite** y **Tailw
 
 ## 📋 Descripción
 
-Aplicación web que consume la API REST del backend para gestionar usuarios y actividades. Incluye las siguientes páginas:
+Aplicación web que consume la API REST del backend para gestionar actividades académicas (tareas, exámenes, talleres). Incluye autenticación JWT con rotación de tokens, vista de actividades del día con WebSocket, y gestión completa de actividades y subtareas.
+
+## 🗺️ Rutas
 
 | Ruta | Página | Descripción |
 |------|--------|-------------|
 | `/login` | Login | Inicio de sesión |
 | `/register` | Register | Registro de nuevo usuario |
 | `/hoy` | Hoy | Actividades del día (página principal) |
-| `/crear` | Crear | Formulario para crear actividades |
-| `/actividad/:id` | Actividad | Detalle de una actividad |
+| `/home` | Home | Página de inicio |
+| `/MisActividades` | MisActividades | Lista y filtrado de actividades |
+| `/CrearActividad` | CrearActividad | Formulario para crear actividad con subtareas |
+| `/actividad/:id` | DetalleActividad | Detalle, subtareas y eliminación |
+| `/actividad/:id/editar` | EditarActividad | Editar actividad existente |
 | `/progreso` | Progreso | Dashboard de progreso |
-| `/home` | Home | Lista de usuarios registrados |
 
 ## 🛠️ Tecnologías
 
@@ -23,35 +27,63 @@ Aplicación web que consume la API REST del backend para gestionar usuarios y ac
 - [TailwindCSS 3](https://tailwindcss.com/) — Framework de estilos utilitarios
 - [React Router 7](https://reactrouter.com/) — Enrutamiento SPA
 - [Axios](https://axios-http.com/) — Cliente HTTP
+- [Lucide React](https://lucide.dev/) — Iconos
 
 ## 📁 Estructura del Proyecto
 
 ```
 frontend/
-├── public/                      # Archivos estáticos
-├── src/
-│   ├── components/              # Componentes reutilizables
-│   │   └── PrivateRoute.jsx     # Protección de rutas autenticadas
-│   ├── pages/                   # Componentes de página
-│   │   ├── Login.jsx            # Inicio de sesión
-│   │   ├── Register.jsx         # Registro de usuario
-│   │   ├── Hoy.jsx              # Actividades del día
-│   │   ├── Crear.jsx            # Crear actividad
-│   │   ├── Actividad.jsx        # Detalle de actividad
-│   │   ├── Progreso.jsx         # Dashboard de progreso
-│   │   └── Home.jsx             # Lista de usuarios
-│   ├── App.jsx                  # Router y rutas principales
-│   ├── index.css                # Estilos globales (Tailwind)
-│   └── main.jsx                 # Punto de entrada
-├── .env                         # Variables de entorno locales (no se sube a git)
-├── .env.production              # Variables de entorno para producción
-├── .env.example                 # Plantilla de variables de entorno
-├── index.html                   # HTML principal
-├── package.json                 # Dependencias y scripts
-├── tailwind.config.js           # Configuración de TailwindCSS
-├── postcss.config.js            # Configuración de PostCSS
-└── vite.config.js               # Configuración de Vite
+├── public/
+└── src/
+    ├── components/
+    │   ├── hoy/                     # Componentes exclusivos de Vista Hoy
+    │   │   ├── TodayView.jsx        # Contenedor principal de la vista
+    │   │   ├── TaskCard.jsx         # Tarjeta de actividad en la vista Hoy
+    │   │   ├── Section.jsx          # Sección (Vencidas / Hoy / Próximas)
+    │   │   ├── SortRules.jsx        # Selector de ordenamiento
+    │   │   ├── TaskSkeleton.jsx     # Skeleton loader de tarjeta
+    │   │   └── EmptyTasks.jsx       # Estado vacío
+    │   ├── ActividadCard.jsx        # Tarjeta de actividad en MisActividades
+    │   ├── Alert.jsx                # Alerta inline (danger / warning / success)
+    │   ├── ErrorAlert.jsx           # Alerta de error de página
+    │   ├── Navbar.jsx               # Barra de navegación
+    │   ├── PrivateRoute.jsx         # Protección de rutas autenticadas
+    │   ├── Select.jsx               # Dropdown personalizado con diseño propio
+    │   ├── SubtareaForm.jsx         # Formulario para agregar subtarea
+    │   ├── SubtareaList.jsx         # Lista y gestión de subtareas
+    │   └── Toast.jsx                # Notificación temporal de éxito
+    ├── hooks/
+    │   ├── useActividades.js        # Carga de actividades del usuario
+    │   ├── useHoy.js                # Datos de hoy vía REST + WebSocket
+    │   └── useSubtareas.js          # CRUD de subtareas de una actividad
+    ├── pages/
+    │   ├── Login.jsx                # Inicio de sesión
+    │   ├── Register.jsx             # Registro de usuario
+    │   ├── Home.jsx                 # Página de inicio
+    │   ├── Hoy.jsx                  # Vista del día
+    │   ├── MisActividades.jsx       # Lista con filtros por tipo y curso
+    │   ├── CrearActividad.jsx       # Crear actividad con subtareas
+    │   ├── Detalleactividad.jsx     # Detalle + subtareas
+    │   ├── Editaractividad.jsx      # Editar actividad
+    │   └── Progreso.jsx             # Dashboard de progreso
+    ├── utils/
+    │   ├── auth.js                  # refreshAccessToken() + authFetch()
+    │   └── cursos.js                # Constantes de cursos (CURSOS, CURSO_LABEL)
+    ├── App.jsx                      # Router, rutas y renovación de token
+    ├── index.css                    # Estilos globales (Tailwind)
+    └── main.jsx                     # Punto de entrada
 ```
+
+## 🔐 Autenticación
+
+- JWT con **rotación de refresh token**: cada vez que se renueva el access token, el nuevo refresh token también se guarda.
+- `authFetch()` en `utils/auth.js` reintenta automáticamente con token renovado ante un 401.
+- Renovación proactiva cada **14 minutos** desde `App.jsx`.
+- Si el token expira por inactividad, el usuario es redirigido a `/login` con un aviso de sesión expirada.
+
+## ⚡ Vista Hoy (WebSocket)
+
+`useHoy.js` obtiene las actividades del día desde `GET /api/activities/today/` y se suscribe a actualizaciones en tiempo real vía WebSocket (`wss://.../ws/activities/today/?token=`). La clasificación en `vencidas` / `hoy` / `próximas` se ajusta en el cliente usando la zona horaria `America/Bogota`.
 
 ## 🚀 Instalación y Ejecución
 
