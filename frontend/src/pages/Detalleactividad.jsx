@@ -32,6 +32,9 @@ function DetalleActividad() {
   const [errorAccion, setErrorAccion]     = useState(null)
   const [exito, setExito]                 = useState(location.state?.exito || null)
 
+  const from      = location.state?.from || '/MisActividades'
+  const fromLabel = from === '/hoy' ? 'Volver a Hoy' : 'Volver a mis actividades'
+
   const token   = localStorage.getItem('access_token')
   const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
 
@@ -49,7 +52,7 @@ function DetalleActividad() {
     try {
       const res = await fetch(`${API_URL}/api/activities/${id}/`, { method: 'DELETE', headers })
       if (!res.ok) throw new Error('Error al eliminar la actividad.')
-      navigate('/MisActividades', { state: { exito: 'Actividad eliminada correctamente.' } })
+      navigate(from, { state: { exito: 'Actividad eliminada correctamente.' } })
     } catch (err) {
       setErrorAccion(err.message)
       setEliminando(false)
@@ -117,10 +120,10 @@ function DetalleActividad() {
       <Navbar />
       <div className="max-w-3xl mx-auto px-6 py-10">
 
-        <button onClick={() => navigate('/MisActividades')}
+        <button onClick={() => navigate(from)}
           className="flex items-center text-gray-400 hover:text-brand mb-6 transition-colors text-sm">
           <ArrowLeft size={16} className="mr-2" />
-          Volver a mis actividades
+          {fromLabel}
         </button>
 
         <Toast mensaje={exito} duracion={2500} onClose={() => setExito(null)} />
@@ -144,7 +147,7 @@ function DetalleActividad() {
 
             <div className="flex items-center gap-2 shrink-0">
               {/* Botón secundario: borde #E1E4E7 */}
-              <button onClick={() => navigate(`/actividad/${id}/editar`)}
+              <button onClick={() => navigate(`/actividad/${id}/editar`, { state: { from } })}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#E1E4E7] text-gray-600 hover:border-brand hover:text-brand transition-all text-sm font-semibold">
                 <Pencil size={15} /> Editar
               </button>

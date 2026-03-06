@@ -138,7 +138,7 @@ function MisActividades() {
               <ActividadCard
                 key={act.id}
                 actividad={act}
-                onClick={() => navigate(`/actividad/${act.id}`)}
+                onClick={() => navigate(`/actividad/${act.id}`, { state: { from: '/MisActividades' } })}
               />
             ))}
           </div>

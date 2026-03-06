@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { Save, ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import ErrorAlert from '../components/ErrorAlert'
@@ -40,6 +40,8 @@ function FieldError({ msg }) {
 function EditarActividad() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
+  const from = location.state?.from || '/MisActividades'
 
   const [cargando, setCargando] = useState(true)
   const [guardando, setGuardando] = useState(false)
@@ -118,7 +120,7 @@ function EditarActividad() {
         const errData = await res.json()
         throw new Error(res.status === 400 ? Object.values(errData).flat().join(' ') : 'Error al guardar. Verifica la conexión.')
       }
-      navigate(`/actividad/${id}`, { state: { exito: 'Los cambios fueron guardados con éxito.' } })
+      navigate(`/actividad/${id}`, { state: { exito: 'Los cambios fueron guardados con éxito.', from } })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -161,7 +163,7 @@ function EditarActividad() {
     <div className="min-h-screen bg-app-bg">
       <Navbar />
       <div className="max-w-2xl mx-auto px-6 py-10">
-        <button onClick={() => navigate(`/actividad/${id}`)}
+        <button onClick={() => navigate(`/actividad/${id}`, { state: { from } })}
           className="flex items-center text-gray-400 hover:text-brand mb-6 transition-colors text-sm">
           <ArrowLeft size={16} className="mr-2" />
           Volver al detalle
@@ -240,7 +242,7 @@ function EditarActividad() {
             </div>
 
             <div className="flex gap-3 pt-2">
-              <button type="button" onClick={() => navigate(`/actividad/${id}`)}
+              <button type="button" onClick={() => navigate(`/actividad/${id}`, { state: { from } })}
                 className="flex-1 py-3 rounded-lg border border-[#E1E4E7] text-gray-600 font-bold hover:border-gray-400 transition-colors text-sm">
                 Cancelar
               </button>
