@@ -1,13 +1,17 @@
 // Formulario para agregar una subtarea.
 // Se usa dentro de un Modal (ver SubtareaList).
 // Focus ring con color brand. UX #5 validación antes de enviar.
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Plus, Loader2 } from 'lucide-react'
 import Alert from './Alert'
 
-function SubtareaForm({ onAgregar, onCancelar, guardando = false }) {
+function SubtareaForm({ onAgregar, onCancelar, guardando = false, fechaEvento, fechaLimite }) {
   const [form, setForm] = useState({ nombre: '', fecha_objetivo: '', horas_estimadas: '' })
   const [error, setError] = useState(null)
+
+  const nombreRef      = useRef(null)
+  const fechaRef       = useRef(null)
+  const horasRef       = useRef(null)
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
@@ -15,10 +19,32 @@ function SubtareaForm({ onAgregar, onCancelar, guardando = false }) {
     e?.preventDefault()
     setError(null)
 
-    if (!form.nombre.trim()) { setError('El nombre es obligatorio.'); return }
-    if (!form.fecha_objetivo) { setError('La fecha objetivo es obligatoria.'); return }
+    if (!form.nombre.trim()) {
+      setError('El nombre es obligatorio.')
+      nombreRef.current?.focus()
+      return
+    }
+    if (!form.fecha_objetivo) {
+      setError('La fecha objetivo es obligatoria.')
+      fechaRef.current?.focus()
+      return
+    }
     if (!form.horas_estimadas || parseFloat(form.horas_estimadas) <= 0) {
-      setError('Las horas deben ser mayores a 0.'); return
+      setError('Las horas deben ser mayores a 0.')
+      horasRef.current?.focus()
+      return
+    }
+
+    const fechaObj = new Date(form.fecha_objetivo)
+    if (fechaEvento && fechaObj < new Date(fechaEvento)) {
+      setError('La fecha objetivo no puede ser anterior a la fecha del evento.')
+      fechaRef.current?.focus()
+      return
+    }
+    if (fechaLimite && fechaObj > new Date(fechaLimite)) {
+      setError('La fecha objetivo no puede ser posterior a la fecha límite.')
+      fechaRef.current?.focus()
+      return
     }
 
     onAgregar({ ...form, horas_estimadas: parseFloat(form.horas_estimadas) })
@@ -35,6 +61,7 @@ function SubtareaForm({ onAgregar, onCancelar, guardando = false }) {
       <div>
         <label className="text-xs text-gray-500 font-semibold block mb-1">Nombre *</label>
         <input
+          ref={nombreRef}
           type="text"
           name="nombre"
           placeholder="Ej: Estudiar capítulo 3"
@@ -47,11 +74,29 @@ function SubtareaForm({ onAgregar, onCancelar, guardando = false }) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="text-xs text-gray-500 font-semibold block mb-1">Fecha objetivo *</label>
-          <input type="date" name="fecha_objetivo" value={form.fecha_objetivo} onChange={handleChange} className={inputCls} />
+          <input
+            ref={fechaRef}
+            type="date"
+            name="fecha_objetivo"
+            value={form.fecha_objetivo}
+            onChange={handleChange}
+            min={fechaEvento ? fechaEvento.slice(0, 10) : undefined}
+            max={fechaLimite ? fechaLimite.slice(0, 10) : undefined}
+            className={inputCls}
+          />
+          {(fechaEvento || fechaLimite) && (
+            <p className="text-[10px] text-gray-400 mt-1">
+              Debe estar entre{' '}
+              {fechaEvento ? new Date(fechaEvento).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '—'}
+              {' '}y{' '}
+              {fechaLimite ? new Date(fechaLimite).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '—'}
+            </p>
+          )}
         </div>
         <div>
           <label className="text-xs text-gray-500 font-semibold block mb-1">Horas estimadas *</label>
           <input
+            ref={horasRef}
             type="number" name="horas_estimadas" min="0.5" step="0.5"
             placeholder="Ej: 1.5" value={form.horas_estimadas} onChange={handleChange} className={inputCls}
           />

@@ -1,15 +1,19 @@
 import { Calendar, ChevronRight, Clock, BookOpen } from 'lucide-react'
 
+const TZ = 'America/Bogota'
+// Devuelve "YYYY-MM-DD" en zona Bogotá para comparar fechas sin depender del timestamp exacto.
+const toBogotaDate = (d) => d.toLocaleDateString('en-CA', { timeZone: TZ })
+
 function ActividadCard({ actividad, onClick }) {
     const fechaLimite = actividad.fecha_limite
-        ? new Date(actividad.fecha_limite + 'T00:00:00')
+        ? new Date(actividad.fecha_limite)
         : null
 
-    const hoy = new Date()
-    hoy.setHours(0, 0, 0, 0)
+    const hoyStr     = toBogotaDate(new Date())
+    const limiteStr  = fechaLimite ? toBogotaDate(fechaLimite) : null
 
-    const esVencida = fechaLimite && fechaLimite < hoy
-    const esHoy = fechaLimite && fechaLimite.getTime() === hoy.getTime()
+    const esVencida = limiteStr && limiteStr < hoyStr
+    const esHoy     = limiteStr === hoyStr
 
     const badgeColor = esVencida
         ? 'bg-danger-bg text-danger-text'
@@ -45,7 +49,7 @@ function ActividadCard({ actividad, onClick }) {
                             {esHoy
                                 ? 'Hoy'
                                 : fechaLimite.toLocaleDateString('es-ES', {
-                                    weekday: 'short', day: 'numeric', month: 'short'
+                                    timeZone: TZ, weekday: 'short', day: 'numeric', month: 'short'
                                 })
                             }
                         </div>

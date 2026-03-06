@@ -3,7 +3,7 @@ import TodayView from "../components/hoy/TodayView"
 import useHoy from "../hooks/useHoy"
 
 function Hoy() {
-  const { tasks, loading, error, fetchTasks } = useHoy()
+  const { vencidas, hoy, proximas, loading, error, fetchTasks } = useHoy()
 
   return (
     <div className="min-h-screen bg-app-bg">
@@ -13,7 +13,14 @@ function Hoy() {
         <p className="text-sm text-gray-500 mb-8">
           {new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" })}
         </p>
-        <TodayView loading={loading} error={error} tasks={tasks} retryFetch={fetchTasks} />
+        <TodayView
+          loading={loading}
+          error={error}
+          vencidas={vencidas}
+          hoy={hoy}
+          proximas={proximas}
+          retryFetch={fetchTasks}
+        />
       </div>
     </div>
   )
