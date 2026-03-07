@@ -1,22 +1,38 @@
-import { Circle } from "lucide-react"
+import { Calendar, BookOpen } from "lucide-react"
 
-function TaskCard({ actividad, onClick }) {
+const TIPO_LABELS = { exam: "Examen", quiz: "Quiz", workshop: "Taller", project: "Proyecto", other: "Otro" }
+
+function TaskCard({ actividad, onClick, variante = "proximas" }) {
+    const borderColor = {
+        vencidas: "border-l-red-400",
+        hoy: "border-l-amber-400",
+        proximas: "border-l-green-400"
+    }[variante]
+
     return (
         <div
             onClick={onClick}
-            className="bg-white rounded-lg p-4 border border-gray-100 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer flex items-center gap-3"
+            className={`bg-white rounded-lg p-5 border border-gray-100 border-l-4 ${borderColor}
+        hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer`}
         >
-            <Circle size={18} className="text-gray-300 shrink-0" />
-            <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-800 truncate">{actividad.titulo}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{actividad.curso} · {actividad.tipo}</p>
+            <p className="text-sm font-bold text-gray-900 mb-1 leading-snug">{actividad.titulo}</p>
+
+            <div className="flex items-center gap-1 text-xs text-gray-400 mb-3">
+                <BookOpen size={11} />
+                <span>{actividad.curso}</span>
+                <span className="mx-1">·</span>
+                <span>{TIPO_LABELS[actividad.tipo] || actividad.tipo}</span>
             </div>
+
             {actividad.fecha_limite && (
-                <span className="text-xs text-red-500 font-bold shrink-0">
-                    {new Date(actividad.fecha_limite).toLocaleDateString("es-ES", {
-                        timeZone: "America/Bogota", day: "numeric", month: "short"
-                    })}
-                </span>
+                <div className="flex items-center gap-1 text-xs text-gray-500 mt-auto">
+                    <Calendar size={11} />
+                    <span>
+                        {new Date(actividad.fecha_limite).toLocaleDateString("es-ES", {
+                            timeZone: "America/Bogota", day: "numeric", month: "short", year: "numeric"
+                        })}
+                    </span>
+                </div>
             )}
         </div>
     )
