@@ -14,13 +14,15 @@ function TodayView({ loading, error, vencidas, hoy, proximas, retryFetch }) {
     const hayTareas = vencidas.length > 0 || hoy.length > 0 || proximas.length > 0
     if (!hayTareas) return <EmptyTasks onCrear={() => navigate("/CrearActividad")} />
 
+    const goToActividad = (id) => navigate(`/actividad/${id}`, { state: { from: '/hoy' } })
+
     return (
-        <div className="space-y-6">
+        <div>
             <SortRules />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                <Section label="Vencidas" color="text-red-400" items={vencidas} onClickItem={(id) => navigate(`/actividad/${id}`, { state: { from: '/hoy' } })} />
-                <Section label="Hoy" color="text-blue-500" items={hoy} onClickItem={(id) => navigate(`/actividad/${id}`, { state: { from: '/hoy' } })} />
-                <Section label="Próximas" color="text-green-500" items={proximas} onClickItem={(id) => navigate(`/actividad/${id}`, { state: { from: '/hoy' } })} />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start mt-4">
+                <Section variante="vencidas" items={vencidas} onClickItem={goToActividad} />
+                <Section variante="hoy" items={hoy} onClickItem={goToActividad} />
+                <Section variante="proximas" items={proximas} onClickItem={goToActividad} />
             </div>
         </div>
     )
