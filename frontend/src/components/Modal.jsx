@@ -31,6 +31,7 @@ export default function Modal({ open, onClose, title, children, maxWidth = 'max-
           <div className="flex items-center justify-between px-6 py-4 border-b border-card-head">
             <h2 className="text-base font-bold text-[#1A1A1A]">{title}</h2>
             <button
+              type="button"
               onClick={onClose}
               className="text-gray-400 hover:text-gray-700 transition-colors"
               aria-label="Cerrar"

@@ -60,7 +60,12 @@ function EditarActividad() {
     const cargar = async () => {
       try {
         const res = await fetch(`${API_URL}/api/activities/${id}/`, { headers })
-        if (res.status === 401) { localStorage.removeItem('access_token'); throw new Error('Sesión expirada. Inicia sesión de nuevo.') }
+        if (res.status === 401) {
+          localStorage.removeItem('access_token')
+          localStorage.setItem('session_expired', '1')
+          window.location.href = '/login'
+          return
+        }
         if (!res.ok) throw new Error('No se pudo cargar la actividad.')
         const data = await res.json()
         setFormData({
@@ -87,13 +92,15 @@ function EditarActividad() {
   }
 
   const validate = () => {
+    // Truncar a minutos para que el minuto actual nunca quede "en el pasado"
     const ahora = new Date()
+    ahora.setSeconds(0, 0)
     const errs  = {}
     if (!formData.titulo.trim())    errs.titulo       = 'El título es obligatorio.'
     if (!formData.curso)            errs.curso        = 'Selecciona un curso.'
-    if (!formData.fecha_evento)     errs.fecha_evento = 'La fecha del evento es obligatoria.'
+    if (!formData.fecha_evento)     errs.fecha_evento = 'La fecha de inicio es obligatoria.'
     else if (new Date(formData.fecha_evento) < ahora)
-                                    errs.fecha_evento = 'La fecha del evento no puede ser en el pasado.'
+                                    errs.fecha_evento = 'La fecha de inicio no puede ser en el pasado.'
     if (!formData.fecha_limite)     errs.fecha_limite = 'La fecha límite es obligatoria.'
     else if (new Date(formData.fecha_limite) < ahora)
                                     errs.fecha_limite = 'La fecha límite no puede ser en el pasado.'
@@ -222,7 +229,7 @@ function EditarActividad() {
             {/* Fechas */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha y Hora del Evento *</label>
+                <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha y Hora de Inicio *</label>
                 <input
                   type="datetime-local" name="fecha_evento"
                   value={formData.fecha_evento} onChange={handleChange}

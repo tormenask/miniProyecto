@@ -1,8 +1,8 @@
 // Item individual de subtarea.
 // Completada → paleta success (#DCF1E3 / #1B4332). UX #9 feedback visual claro.
-import { Calendar, Clock, Trash, CheckCircle2, Circle } from 'lucide-react'
+import { Calendar, Clock, Trash, CheckCircle2, Circle, Pencil } from 'lucide-react'
 
-function SubtareaItem({ sub, onToggle, onEliminar }) {
+function SubtareaItem({ sub, onToggle, onEliminar, onEditar }) {
   return (
     <div className={`flex items-center gap-4 p-4 rounded-xl border transition-all
       ${sub.completada
@@ -12,6 +12,7 @@ function SubtareaItem({ sub, onToggle, onEliminar }) {
     >
       {/* UX #1 Visibilidad: feedback inmediato al marcar completada */}
       <button
+        type="button"
         onClick={() => onToggle(sub)}
         className={`shrink-0 transition-colors ${sub.completada ? 'text-success-text' : 'text-gray-300 hover:text-brand'}`}
       >
@@ -34,7 +35,18 @@ function SubtareaItem({ sub, onToggle, onEliminar }) {
         </div>
       </div>
 
+      {onEditar && (
+        <button
+          type="button"
+          onClick={() => onEditar(sub)}
+          className="shrink-0 text-gray-300 hover:text-brand transition-colors"
+          aria-label="Editar subactividad"
+        >
+          <Pencil size={15} />
+        </button>
+      )}
       <button
+        type="button"
         onClick={() => onEliminar(sub.id)}
         className="shrink-0 text-gray-300 hover:text-danger-text transition-colors"
         aria-label="Eliminar subactividad"
