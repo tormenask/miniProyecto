@@ -22,7 +22,7 @@ function SubtareaList({
   const [errorMover, setErrorMover] = useState(null)
   const [mostrarAlerta, setMostrarAlerta] = useState(true)
 
-  // Editar subactividad (US-06/07/08)
+  // Editar subactividad 
   const [modalEditar, setModalEditar] = useState(null) // { sub, campos }
   const [guardandoEditar, setGuardandoEditar] = useState(false)
   const [conflictoEditar, setConflictoEditar] = useState(null) // data del 409
@@ -228,7 +228,7 @@ function SubtareaList({
         />
       </Modal>
 
-      {/* Modal editar subactividad (US-06/07/08) */}
+      {/* Modal editar subactividad  */}
       <Modal open={!!modalEditar} onClose={handleCerrarEditar} title="Editar subactividad">
         {modalEditar && (
           <div className="space-y-4">
@@ -276,7 +276,7 @@ function SubtareaList({
               </>
             )}
 
-            {/* Panel de conflicto (US-07/08) */}
+            {/* Panel de conflicto */}
             {conflictoEditar && (
               <div className="space-y-3">
                 <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
