@@ -146,7 +146,7 @@ function DetalleActividad() {
               <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
                 <Calendar size={18} className="text-blue-500 shrink-0" />
                 <div>
-                  <p className="text-[10px] uppercase font-black text-blue-400 tracking-widest">Fecha del evento</p>
+                  <p className="text-[10px] uppercase font-black text-blue-400 tracking-widest">Fecha de inicio</p>
                   <p className="text-sm font-bold text-blue-800">
                     {new Date(actividad.fecha_evento).toLocaleString("es-ES", {
                       weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit"

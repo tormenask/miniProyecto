@@ -15,7 +15,6 @@ function SubtareaList({
 }) {
   const [modalAbierto, setModalAbierto] = useState(false)
   const [modalConflicto, setModalConflicto] = useState(null)
-  const [fechasEditadas, setFechasEditadas] = useState({})
   const [horasEditadas, setHorasEditadas] = useState({})
   const [subSeleccionada, setSubSeleccionada] = useState(null)
   const [fechaDestino, setFechaDestino] = useState('')
@@ -70,14 +69,6 @@ function SubtareaList({
     }
   }
 
-  const soloFecha = (str) => {
-    if (!str) return null
-    const fecha = new Date(str)
-    const y = fecha.getFullYear()
-    const m = String(fecha.getMonth() + 1).padStart(2, '0')
-    const d = String(fecha.getDate()).padStart(2, '0')
-    return `${y}-${m}-${d}`
-  }
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-[#E1E4E7] p-6 space-y-4">
@@ -91,7 +82,7 @@ function SubtareaList({
             </p>
           )}
         </div>
-        <button onClick={() => setModalAbierto(true)}
+        <button type="button" onClick={() => setModalAbierto(true)}
           className="flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors">
           <Plus size={16} /> Agregar
         </button>
@@ -163,16 +154,16 @@ function SubtareaList({
       <Modal
         open={!!modalConflicto && modalConflicto.tipo === 'mover'}
         onClose={() => { setModalConflicto(null); setSubSeleccionada(null); setFechaDestino(''); setErrorMover(null) }}
-        title="📅 Mover subtarea a otro día"
+        title="📅 Mover subactividad a otro día"
       >
         <div className="space-y-4">
           <p className="text-xs text-gray-500">
-            Selecciona la subtarea que quieres mover y el día destino. Se creará una nueva actividad en ese día con esa subtarea.
+            Selecciona la subactividad que quieres mover y el día destino. Se creará una nueva actividad en ese día con esa subactividad.
           </p>
 
-          {/* Seleccionar subtarea */}
+          {/* Seleccionar subactividad */}
           <div className="space-y-2">
-            <label className="text-xs text-gray-500 font-semibold block">Subtarea a mover</label>
+            <label className="text-xs text-gray-500 font-semibold block">Subactividad a mover</label>
             {subsConflicto.map((sub) => (
               <div
                 key={sub.id}
@@ -199,7 +190,7 @@ function SubtareaList({
               className="w-full px-3 py-2 text-sm border border-[#E1E4E7] rounded-lg focus:ring-2 focus:ring-brand outline-none"
             />
             <p className="text-[10px] text-gray-400 mt-1">
-              Se creará una nueva actividad "{actividadData?.titulo}" en ese día con la subtarea seleccionada.
+              Se creará una nueva actividad "{actividadData?.titulo}" en ese día con la subactividad seleccionada.
             </p>
           </div>
 
@@ -209,11 +200,13 @@ function SubtareaList({
 
           <div className="flex gap-2 pt-1">
             <button
+              type="button"
               onClick={() => { setModalConflicto(null); setSubSeleccionada(null); setFechaDestino(''); setErrorMover(null) }}
               className="flex-1 py-2 rounded-lg border border-[#E1E4E7] text-gray-500 text-sm font-bold hover:border-gray-400 transition-colors">
               Cancelar
             </button>
             <button
+              type="button"
               onClick={handleMoverSubtarea}
               disabled={moviendo || !subSeleccionada || !fechaDestino}
               className="flex-1 bg-brand hover:bg-brand-hover text-white py-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
@@ -247,11 +240,11 @@ function SubtareaList({
             </div>
           ))}
           <div className="flex gap-2 pt-1">
-            <button onClick={() => { setModalConflicto(null); setHorasEditadas({}) }}
+            <button type="button" onClick={() => { setModalConflicto(null); setHorasEditadas({}) }}
               className="flex-1 py-2 rounded-lg border border-[#E1E4E7] text-gray-500 text-sm font-bold hover:border-gray-400 transition-colors">
               Cancelar
             </button>
-            <button onClick={handleGuardarReducir}
+            <button type="button" onClick={handleGuardarReducir}
               className="flex-1 bg-brand hover:bg-brand-hover text-white py-2 rounded-lg text-sm font-bold transition-colors">
               Guardar cambios
             </button>

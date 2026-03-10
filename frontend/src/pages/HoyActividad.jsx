@@ -107,7 +107,7 @@ function HoyActividad() {
                             <div className="flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
                                 <Calendar size={16} className="text-blue-400 shrink-0" />
                                 <div>
-                                    <p className="text-[10px] uppercase font-black text-blue-400 tracking-widest">Fecha del evento</p>
+                                    <p className="text-[10px] uppercase font-black text-blue-400 tracking-widest">Fecha de inicio</p>
                                     <p className="text-xs font-bold text-blue-700">
                                         {new Date(actividad.fecha_evento).toLocaleString("es-ES", {
                                             weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"

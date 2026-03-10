@@ -30,7 +30,7 @@ function AlertaHoras({ conflictos, limite, onMoverDia, onReducirHoras, onCerrar 
                     <div className="flex gap-2">
                         <button onClick={() => onMoverDia(fecha)}
                             className="flex-1 text-xs font-bold px-3 py-1.5 rounded-lg border border-yellow-300 text-yellow-700 hover:bg-yellow-50 transition-colors">
-                            📅 Mover subtarea de día
+                            📅 Mover subactividad de día
                         </button>
                         <button onClick={() => onReducirHoras(fecha)}
                             className="flex-1 text-xs font-bold px-3 py-1.5 rounded-lg border border-yellow-300 text-yellow-700 hover:bg-yellow-50 transition-colors">

@@ -32,13 +32,13 @@ function EmptyTasks({ onCrear }) {
             <EmptyIllustration />
             <h2 className="text-xl font-bold text-gray-800 mb-2 mt-2">¡Ya estás al día por hoy!</h2>
             <p className="text-sm text-gray-500 mb-8 max-w-xs">
-                Disfruta de tu tiempo libre o añade una nueva tarea a continuación.
+                Disfruta de tu tiempo libre o añade una nueva actividad a continuación.
             </p>
             <button
                 onClick={onCrear}
                 className="flex items-center gap-2 bg-black text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors"
             >
-                <Plus size={16} /> Crear tarea
+                <Plus size={16} /> Crear actividad
             </button>
         </div>
     )

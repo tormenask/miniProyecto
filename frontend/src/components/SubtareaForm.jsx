@@ -12,6 +12,10 @@ function SubtareaForm({ onAgregar, onCancelar, guardando = false, fechaEvento, f
 
   const soloFecha = (str) => {
     if (!str) return null
+    // Si el string es solo fecha "YYYY-MM-DD" (sin tiempo), new Date() lo trata
+    // como UTC midnight y en zonas UTC-N devuelve el día anterior. Extraemos
+    // la parte de fecha directamente para evitar la conversión de zona horaria.
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str
     const fecha = new Date(str)
     const year = fecha.getFullYear()
     const month = String(fecha.getMonth() + 1).padStart(2, '0')

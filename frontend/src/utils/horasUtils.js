@@ -46,7 +46,8 @@ export function sugerirDiasDisponibles(todasActividades, limite, diasABuscar = 7
     for (let i = 1; i <= diasABuscar; i++) {
         const d = new Date(hoy)
         d.setDate(hoy.getDate() + i)
-        const fecha = d.toISOString().slice(0, 10)
+        // Usar getters locales para evitar desfase de zona horaria con toISOString()
+        const fecha = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
         const horasUsadas = mapa[fecha] || 0
         const horasLibres = +(limite - horasUsadas).toFixed(1)
         if (horasLibres > 0) {

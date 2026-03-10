@@ -62,7 +62,7 @@ function ActividadCard({ actividad, onClick }) {
             {total > 0 && (
                 <>
                     <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
-                        <span>{completadas} de {total} subtareas completadas</span>
+                        <span>{completadas} de {total} subactividades completadas</span>
                         <span className="text-brand font-bold">{porcentaje}%</span>
                     </div>
                     <div className="w-full bg-red-100 rounded-full h-2 mb-3">
