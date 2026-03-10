@@ -60,7 +60,12 @@ function EditarActividad() {
     const cargar = async () => {
       try {
         const res = await fetch(`${API_URL}/api/activities/${id}/`, { headers })
-        if (res.status === 401) { localStorage.removeItem('access_token'); throw new Error('Sesión expirada. Inicia sesión de nuevo.') }
+        if (res.status === 401) {
+          localStorage.removeItem('access_token')
+          localStorage.setItem('session_expired', '1')
+          window.location.href = '/login'
+          return
+        }
         if (!res.ok) throw new Error('No se pudo cargar la actividad.')
         const data = await res.json()
         setFormData({

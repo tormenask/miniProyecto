@@ -58,9 +58,34 @@ function DetalleActividad() {
     return (
       <div className="min-h-screen bg-app-bg">
         <Navbar />
-        <div className="flex flex-col items-center justify-center py-32">
-          <Loader2 className="animate-spin text-brand mb-4" size={40} />
-          <p className="text-gray-400 animate-pulse">Cargando actividad...</p>
+        <div className="max-w-3xl mx-auto px-6 py-10 animate-pulse">
+          <div className="h-4 bg-gray-200 rounded w-44 mb-6" />
+          <div className="bg-white rounded-2xl border border-[#E1E4E7] p-8 mb-6 space-y-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 space-y-3">
+                <div className="flex gap-2">
+                  <div className="h-6 w-20 bg-gray-200 rounded-full" />
+                </div>
+                <div className="h-7 bg-gray-200 rounded w-2/3" />
+                <div className="h-4 bg-gray-100 rounded w-32" />
+              </div>
+              <div className="flex gap-2">
+                <div className="h-9 w-24 bg-gray-100 rounded-lg" />
+                <div className="h-9 w-24 bg-gray-100 rounded-lg" />
+              </div>
+            </div>
+            <div className="h-16 bg-gray-100 rounded-xl" />
+            <div className="grid grid-cols-2 gap-4 pt-2">
+              <div className="h-14 bg-gray-100 rounded-xl" />
+              <div className="h-14 bg-gray-100 rounded-xl" />
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-[#E1E4E7] p-6 space-y-4">
+            <div className="h-5 bg-gray-200 rounded w-36" />
+            <div className="h-10 bg-gray-100 rounded-xl" />
+            <div className="h-10 bg-gray-100 rounded-xl" />
+            <div className="h-10 bg-gray-100 rounded-xl" />
+          </div>
         </div>
       </div>
     )
