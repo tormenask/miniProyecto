@@ -45,7 +45,7 @@ export default function Login() {
       localStorage.setItem('access_token', response.data.access)
       localStorage.setItem('refresh_token', response.data.refresh)
       localStorage.setItem('username', form.username)
-      navigate('/home')
+      navigate('/hoy')
     } catch (err) {
       // UX #9 Recuperación: mensajes específicos por tipo de error
       if (err.response?.status === 401) {

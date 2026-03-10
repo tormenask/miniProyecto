@@ -10,12 +10,12 @@ import Select from '../components/Select'
 import { CURSOS } from '../utils/cursos'
 
 const TIPOS_FILTRO = [
-  { value: '',         label: 'Todos los tipos' },
-  { value: 'exam',     label: 'Examen' },
-  { value: 'quiz',     label: 'Quiz' },
+  { value: '', label: 'Todos los tipos' },
+  { value: 'exam', label: 'Examen' },
+  { value: 'quiz', label: 'Quiz' },
   { value: 'workshop', label: 'Taller' },
-  { value: 'project',  label: 'Proyecto' },
-  { value: 'other',    label: 'Otro' },
+  { value: 'project', label: 'Proyecto' },
+  { value: 'other', label: 'Otro' },
 ]
 
 const CURSOS_FILTRO = [
@@ -37,6 +37,10 @@ function MisActividades() {
     return true
   })
 
+  const totalSubs = actividades.reduce((acc, a) => acc + (a.subactivities?.length || 0), 0)
+  const completadas = actividades.reduce((acc, a) => acc + (a.subactivities?.filter(s => s.completada).length || 0), 0)
+  const pendientes = totalSubs - completadas
+
   return (
     <div className="min-h-screen bg-app-bg">
       <Toast mensaje={exito} duracion={2500} onClose={() => setExito(null)} />
@@ -55,6 +59,24 @@ function MisActividades() {
             <Plus size={20} /> Nueva Actividad
           </button>
         </header>
+
+        {/* Resumen general */}
+        {!cargando && !error && actividades.length > 0 && (
+          <div className="bg-red-50 border border-red-100 rounded-xl p-6 mb-6 grid grid-cols-3 text-center">
+            <div>
+              <p className="text-3xl font-black text-brand">{actividades.length}</p>
+              <p className="text-xs text-gray-500 mt-1">Actividades totales</p>
+            </div>
+            <div>
+              <p className="text-3xl font-black text-green-500">{completadas}</p>
+              <p className="text-xs text-gray-500 mt-1">Subtareas completadas</p>
+            </div>
+            <div>
+              <p className="text-3xl font-black text-gray-400">{pendientes}</p>
+              <p className="text-xs text-gray-500 mt-1">Subtareas pendientes</p>
+            </div>
+          </div>
+        )}
 
         {/* Filtros */}
         {cargando ? (
@@ -89,6 +111,7 @@ function MisActividades() {
           </div>
         )}
 
+        {/* Contenido */}
         {cargando ? (
           <div className="grid gap-4">
             {[0, 1, 2].map((i) => (

@@ -14,8 +14,7 @@ function TodayView({ loading, error, vencidas, hoy, proximas, retryFetch }) {
     const hayTareas = vencidas.length > 0 || hoy.length > 0 || proximas.length > 0
     if (!hayTareas) return <EmptyTasks onCrear={() => navigate("/CrearActividad")} />
 
-    const goToActividad = (id) => navigate(`/actividad/${id}`, { state: { from: '/hoy' } })
-
+    const goToActividad = (id) => navigate(`/hoy/actividad/${id}`)
     return (
         <div>
             <SortRules />
