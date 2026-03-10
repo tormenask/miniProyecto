@@ -196,8 +196,31 @@ function MisActividades() {
 
         {/* ── Filtros ── */}
         {cargando ? (
-          <div className="flex flex-wrap items-center gap-3 mb-6">
-            <div className="w-full h-14 bg-gray-100 rounded-2xl animate-pulse" />
+          <div className="mb-6 space-y-2">
+            {/* Cabecera skeleton */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-3.5 h-3.5 bg-gray-200 rounded animate-pulse" />
+                <div className="w-12 h-3.5 bg-gray-200 rounded animate-pulse" />
+                <div className="w-3 h-3 bg-gray-200 rounded animate-pulse" />
+              </div>
+              <div className="w-24 h-3.5 bg-gray-100 rounded animate-pulse" />
+            </div>
+            {/* Panel skeleton */}
+            <div className="bg-white border border-[#E1E4E7] rounded-2xl px-4 py-3 flex flex-wrap items-center gap-2">
+              {/* Pills de tipo */}
+              {[72, 56, 64, 76, 48].map((w, i) => (
+                <div
+                  key={i}
+                  className="h-8 bg-gray-100 rounded-full animate-pulse"
+                  style={{ width: `${w}px`, animationDelay: `${i * 60}ms` }}
+                />
+              ))}
+              {/* Divisor */}
+              <div className="hidden md:block w-px h-6 bg-[#E1E4E7] mx-1" />
+              {/* Select curso */}
+              <div className="h-8 w-40 bg-gray-100 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+            </div>
           </div>
         ) : !error && actividades.length > 0 && (
           <FilterBar
