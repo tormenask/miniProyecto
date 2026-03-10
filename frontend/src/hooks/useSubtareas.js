@@ -39,13 +39,23 @@ function useSubtareas(actividadId, inicial = []) {
         })
     }
 
-    const editar = async (sub, cambios) => {
-        const updated = { ...sub, ...cambios }
-        setSubtareas((prev) => prev.map((s) => (s.id === sub.id ? updated : s)))
-        if (!actividadId) return
-        await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, {
-            method: "PATCH", headers, body: JSON.stringify(cambios)
+    const editar = async (sub, cambios, forzar = false) => {
+        if (!actividadId) {
+            setSubtareas((prev) => prev.map((s) => (s.id === sub.id ? { ...sub, ...cambios } : s)))
+            return { ok: true }
+        }
+        const body = forzar ? { ...cambios, forzar: true } : cambios
+        const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, {
+            method: "PATCH", headers, body: JSON.stringify(body)
         })
+        if (res.status === 409) {
+            const data = await res.json()
+            return { ok: false, conflicto: true, data }
+        }
+        if (!res.ok) return { ok: false, conflicto: false }
+        const updated = await res.json()
+        setSubtareas((prev) => prev.map((s) => (s.id === sub.id ? updated : s)))
+        return { ok: true }
     }
 
     // Crea nueva actividad con los datos de la original y mueve la subtarea allí
