@@ -51,15 +51,15 @@ function Hoy() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <CalendarDays size={20} className="text-gray-400" />
-              <p className="text-sm text-gray-400 font-medium">{fechaCapitalizada}</p>
+              <CalendarDays size={20} className="text-gray-600" />
+              <p className="text-sm text-gray-600 font-medium">{fechaCapitalizada}</p>
             </div>
             <h1 className="text-3xl font-black text-gray-900 tracking-tight">Vista de Hoy</h1>
-            <p className="text-sm text-gray-500 mt-1">Aquí están todas tus actividades organizadas por fecha límite.</p>
+            <p className="text-sm text-gray-600 mt-1">Aquí están todas tus actividades organizadas por fecha límite.</p>
           </div>
           <div className="hidden md:flex flex-col items-end gap-1">
-            <span className="text-4xl font-black text-gray-200 leading-none select-none">{new Date().getDate()}</span>
-            <span className="text-xs text-gray-400 uppercase tracking-widest">
+            <span className="text-4xl font-black text-gray-900 leading-none select-none">{new Date().getDate()}</span>
+            <span className="text-xs text-gray-900 uppercase tracking-widest">
               {new Date().toLocaleDateString("es-ES", { month: "long" })}
             </span>
           </div>
