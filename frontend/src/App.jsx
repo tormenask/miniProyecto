@@ -49,7 +49,7 @@ function App() {
         <Route path="/MisActividades" element={<PrivateRoute><MisActividades /></PrivateRoute>} />
         <Route path="/actividad/:id" element={<PrivateRoute><DetalleActividad /></PrivateRoute>} />
         <Route path="/actividad/:id/editar" element={<PrivateRoute><EditarActividad /></PrivateRoute>} />
-        <Route path="/hoy/actividad/:id" element={<HoyActividad />} />
+        <Route path="/hoy/actividad/:id" element={<PrivateRoute><HoyActividad /></PrivateRoute>} />
         <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
         {/* Rutas de autenticación */}
         <Route path="/login" element={<Login />} />

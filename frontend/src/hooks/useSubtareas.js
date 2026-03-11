@@ -9,6 +9,17 @@ function useSubtareas(actividadId, inicial = []) {
     const token = localStorage.getItem("access_token")
     const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
 
+    const handle401 = (res) => {
+        if (res.status === 401) {
+            localStorage.removeItem('access_token')
+            localStorage.removeItem('refresh_token')
+            localStorage.setItem('session_expired', '1')
+            window.location.href = '/login'
+            return true
+        }
+        return false
+    }
+
     const agregar = async (sub) => {
         if (!actividadId) { setSubtareas((prev) => [...prev, { ...sub, id: Date.now() }]); return }
         setGuardando(true)
@@ -16,6 +27,7 @@ function useSubtareas(actividadId, inicial = []) {
             const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/`, {
                 method: "POST", headers, body: JSON.stringify(sub)
             })
+            if (handle401(res)) return
             if (!res.ok) throw new Error("Error al guardar subactividad")
             const nueva = await res.json()
             setSubtareas((prev) => [...prev, nueva])
@@ -27,16 +39,18 @@ function useSubtareas(actividadId, inicial = []) {
     const eliminar = async (subId) => {
         setSubtareas((prev) => prev.filter((s) => s.id !== subId))
         if (!actividadId) return
-        await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${subId}/`, { method: "DELETE", headers })
+        const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${subId}/`, { method: "DELETE", headers })
+        if (res) handle401(res)
     }
 
     const toggle = async (sub) => {
         const updated = { ...sub, completada: !sub.completada }
         setSubtareas((prev) => prev.map((s) => (s.id === sub.id ? updated : s)))
         if (!actividadId) return
-        await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, {
+        const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, {
             method: "PATCH", headers, body: JSON.stringify({ completada: updated.completada })
         })
+        if (res) handle401(res)
     }
 
     const editar = async (sub, cambios, forzar = false) => {
@@ -48,6 +62,7 @@ function useSubtareas(actividadId, inicial = []) {
         const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, {
             method: "PATCH", headers, body: JSON.stringify(body)
         })
+        if (handle401(res)) return { ok: false, conflicto: false }
         if (res.status === 409) {
             const data = await res.json()
             return { ok: false, conflicto: true, data }

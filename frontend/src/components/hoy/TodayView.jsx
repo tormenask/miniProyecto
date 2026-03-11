@@ -18,7 +18,7 @@ function TodayView({ loading, error, vencidas, hoy, proximas, retryFetch }) {
     return (
         <div>
             <SortRules />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start mt-4">
                 <Section variante="vencidas" items={vencidas} onClickItem={goToActividad} />
                 <Section variante="hoy" items={hoy} onClickItem={goToActividad} />
                 <Section variante="proximas" items={proximas} onClickItem={goToActividad} />

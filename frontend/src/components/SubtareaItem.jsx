@@ -1,8 +1,11 @@
 // Item individual de subtarea.
 // Completada → paleta success (#DCF1E3 / #1B4332). UX #9 feedback visual claro.
+import { useState } from 'react'
 import { Calendar, Clock, Trash, CheckCircle2, Circle, Pencil } from 'lucide-react'
 
 function SubtareaItem({ sub, onToggle, onEliminar, onEditar }) {
+  const [confirmar, setConfirmar] = useState(false)
+
   return (
     <div className={`flex items-center gap-4 p-4 rounded-xl border transition-all
       ${sub.completada
@@ -45,16 +48,38 @@ function SubtareaItem({ sub, onToggle, onEliminar, onEditar }) {
           <Pencil size={15} />
         </button>
       )}
-      <button
-        type="button"
-        onClick={() => onEliminar(sub.id)}
-        className="shrink-0 text-gray-300 hover:text-danger-text transition-colors"
-        aria-label="Eliminar subactividad"
-      >
-        <Trash size={16} />
-      </button>
+
+      {!confirmar ? (
+        <button
+          type="button"
+          onClick={() => setConfirmar(true)}
+          className="shrink-0 text-gray-300 hover:text-danger-text transition-colors"
+          aria-label="Eliminar subactividad"
+        >
+          <Trash size={16} />
+        </button>
+      ) : (
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-xs text-red-500 font-semibold">¿Eliminar?</span>
+          <button
+            type="button"
+            onClick={() => { onEliminar(sub.id); setConfirmar(false) }}
+            className="px-2 py-1 bg-red-500 text-white rounded-md text-xs font-bold hover:bg-red-600 transition-colors"
+          >
+            Sí
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirmar(false)}
+            className="px-2 py-1 bg-gray-100 text-gray-600 rounded-md text-xs font-bold hover:bg-gray-200 transition-colors"
+          >
+            No
+          </button>
+        </div>
+      )}
     </div>
   )
 }
 
 export default SubtareaItem
+

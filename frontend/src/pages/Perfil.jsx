@@ -272,7 +272,7 @@ export default function Perfil() {
                 <Settings2 size={12} /> Límite de horas diarias
               </label>
               <div className="flex items-center gap-3">
-                <input type="number" min="0.5" max="24" step="0.5" value={limite}
+                <input type="number" min="1" max="16" step="0.5" value={limite}
                   onChange={e => setLimite(parseFloat(e.target.value))}
                   className="w-24 px-3 py-2.5 text-sm border border-[#E1E4E7] rounded-lg focus:ring-2 focus:ring-brand outline-none text-center font-bold" />
                 <span className="text-sm text-gray-400">horas/día</span>
