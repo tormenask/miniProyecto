@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CheckCircle2, Circle, PauseCircle, BookOpen, Calendar, Clock, CalendarClock } from 'lucide-react'
+import { CheckCircle2, Circle, PauseCircle, BookOpen, Calendar, Clock, CalendarClock, AlertCircle, X } from 'lucide-react'
 import ConflictoModal from '../ConflictoModal'
 import useReprogramar from '../../hooks/useReprogramar'
 
@@ -118,6 +118,22 @@ function SubtareaHoyCard({ sub, actividadId, actividadTitulo, actividadCurso, va
                 <button type="button" onClick={() => setReprogramando(false)}
                   className="text-xs font-bold px-3 py-1 rounded-lg border border-[#E1E4E7] text-gray-500 hover:border-gray-400 transition-colors">
                   Cancelar
+                </button>
+              </div>
+            )}
+
+            {/* Error de validación de fecha (ej: fecha posterior a fecha límite) */}
+            {errorReprog && !conflicto && (
+              <div className="mt-2 flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                <AlertCircle size={13} className="text-red-500 shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-red-700 font-semibold">{errorReprog}</p>
+                  <p className="text-xs text-red-500 mt-0.5">Elige otra fecha e inténtalo de nuevo.</p>
+                </div>
+                <button type="button" onClick={() => { limpiarConflicto(); setReprogramando(true) }}
+                  className="shrink-0 text-red-400 hover:text-red-600 transition-colors"
+                  aria-label="Elegir otra fecha">
+                  <X size={13} />
                 </button>
               </div>
             )}
