@@ -21,7 +21,7 @@ function HoyActividad() {
     const navigate = useNavigate()
     const { actividad, cargando, error } = useActividad(id)
     const { actividades } = useActividades()
-    const { subtareas, setSubtareas, guardando, agregar, eliminar, toggle, editar, moverANuevaActividad } = useSubtareas(id)
+    const { subtareas, setSubtareas, guardando, agregar, eliminar, toggle, posponer, editar, moverANuevaActividad } = useSubtareas(id)
 
     const token = localStorage.getItem("access_token")
     const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
@@ -80,7 +80,7 @@ function HoyActividad() {
         )
     }
 
-    const completadas = subtareas.filter(s => s.completada).length
+    const completadas = subtareas.filter(s => s.estado === 'hecha' || s.completada).length
     const progreso = subtareas.length > 0 ? Math.round((completadas / subtareas.length) * 100) : 0
 
     return (
@@ -157,6 +157,7 @@ function HoyActividad() {
                     onAgregar={agregar}
                     onToggle={toggle}
                     onEliminar={eliminar}
+                    onPosponer={posponer}
                     onEditarSub={editar}
                     onMoverANuevaActividad={moverANuevaActividad}
                     guardando={guardando}

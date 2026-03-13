@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { LayoutList, Plus } from 'lucide-react'
 import Navbar from '../components/Navbar'
-import ErrorAlert from '../components/ErrorAlert'
+import Alert from '../components/Alert'
 import Toast from '../components/Toast'
 import ActividadCard from '../components/ActividadCard'
 import useActividades from '../hooks/useActividades'
+import useLimiteHoras from '../hooks/useLimiteHoras'
 import Select from '../components/Select'
 import { CURSOS } from '../utils/cursos'
+import { actividadTieneConflicto } from '../utils/horasUtils'
 
 const TIPOS_FILTRO = [
   { value: '', label: 'Todos los tipos' },
@@ -25,6 +27,7 @@ const CURSOS_FILTRO = [
 
 function MisActividades() {
   const { actividades, cargando, error } = useActividades()
+  const { limite } = useLimiteHoras()
   const navigate = useNavigate()
   const location = useLocation()
   const [exito, setExito] = useState(location.state?.exito || null)
@@ -38,7 +41,7 @@ function MisActividades() {
   })
 
   const totalSubs = actividades.reduce((acc, a) => acc + (a.subactivities?.length || 0), 0)
-  const completadas = actividades.reduce((acc, a) => acc + (a.subactivities?.filter(s => s.completada).length || 0), 0)
+  const completadas = actividades.reduce((acc, a) => acc + (a.subactivities?.filter(s => s.estado === 'hecha' || s.completada).length || 0), 0)
   const pendientes = totalSubs - completadas
 
   return (
@@ -132,7 +135,7 @@ function MisActividades() {
             ))}
           </div>
         ) : error ? (
-          <ErrorAlert mensaje={error} />
+          <Alert mensaje={error} />
         ) : actividades.length === 0 ? (
           <div className="bg-white rounded-xl p-16 text-center shadow-sm border border-[#E1E4E7]">
             <div className="bg-danger-bg w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -161,6 +164,7 @@ function MisActividades() {
               <ActividadCard
                 key={act.id}
                 actividad={act}
+                tieneConflicto={actividadTieneConflicto(act, actividades, limite)}
                 onClick={() => navigate(`/actividad/${act.id}`, { state: { from: '/MisActividades' } })}
               />
             ))}
