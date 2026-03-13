@@ -21,7 +21,7 @@ function useSubtareas(actividadId, inicial = []) {
     }
 
     const agregar = async (sub) => {
-        if (!actividadId) { setSubtareas((prev) => [...prev, { ...sub, id: Date.now() }]); return }
+        if (!actividadId) { setSubtareas((prev) => [...prev, { ...sub, id: Date.now(), estado: 'pendiente' }]); return }
         setGuardando(true)
         try {
             const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/`, {
@@ -43,12 +43,26 @@ function useSubtareas(actividadId, inicial = []) {
         if (res) handle401(res)
     }
 
+    // Toggle entre pendiente ↔ hecha
     const toggle = async (sub) => {
-        const updated = { ...sub, completada: !sub.completada }
+        const nuevoEstado = sub.estado === 'hecha' ? 'pendiente' : 'hecha'
+        const updated = { ...sub, estado: nuevoEstado, nota_posposicion: nuevoEstado === 'pendiente' ? null : sub.nota_posposicion }
         setSubtareas((prev) => prev.map((s) => (s.id === sub.id ? updated : s)))
         if (!actividadId) return
         const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, {
-            method: "PATCH", headers, body: JSON.stringify({ completada: updated.completada })
+            method: "PATCH", headers, body: JSON.stringify({ estado: nuevoEstado })
+        })
+        if (res) handle401(res)
+    }
+
+    // Marcar como pospuesta con nota opcional
+    const posponer = async (sub, nota = '') => {
+        const updated = { ...sub, estado: 'pospuesta', nota_posposicion: nota || null }
+        setSubtareas((prev) => prev.map((s) => (s.id === sub.id ? updated : s)))
+        if (!actividadId) return
+        const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, {
+            method: "PATCH", headers,
+            body: JSON.stringify({ estado: 'pospuesta', nota_posposicion: nota || null })
         })
         if (res) handle401(res)
     }
@@ -84,8 +98,8 @@ function useSubtareas(actividadId, inicial = []) {
                 tipo: actividadData.tipo,
                 curso: actividadData.curso,
                 descripcion: actividadData.descripcion || '',
-                fecha_evento: `${nuevaFecha}T00:00:00`,
-                fecha_limite: `${nuevaFecha}T23:59:00`,
+                fecha_evento: new Date(`${nuevaFecha}T00:00:00`).toISOString(),
+                fecha_limite: new Date(`${nuevaFecha}T23:59:00`).toISOString(),
             }
             const resActividad = await fetch(`${API_URL}/api/activities/`, {
                 method: "POST", headers, body: JSON.stringify(nuevaActividad)
@@ -100,7 +114,6 @@ function useSubtareas(actividadId, inicial = []) {
                     nombre: sub.nombre,
                     fecha_objetivo: nuevaFecha,
                     horas_estimadas: sub.horas_estimadas,
-                    completada: false,
                 })
             })
             if (!resSub.ok) throw new Error("Error al mover subactividad")
@@ -120,7 +133,7 @@ function useSubtareas(actividadId, inicial = []) {
         }
     }
 
-    return { subtareas, setSubtareas, guardando, agregar, eliminar, toggle, editar, moverANuevaActividad }
+    return { subtareas, setSubtareas, guardando, agregar, eliminar, toggle, posponer, editar, moverANuevaActividad }
 }
 
 export default useSubtareas

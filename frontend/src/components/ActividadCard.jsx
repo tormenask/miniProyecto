@@ -1,4 +1,4 @@
-import { Calendar, Clock, BookOpen, ExternalLink } from 'lucide-react'
+import { Calendar, Clock, BookOpen, ExternalLink, AlertTriangle } from 'lucide-react'
 
 const TZ = 'America/Bogota'
 const toBogotaDate = (d) => d.toLocaleDateString('en-CA', { timeZone: TZ })
@@ -12,10 +12,10 @@ const TIPO_COLORS = {
     other: 'bg-gray-100 text-gray-600'
 }
 
-function ActividadCard({ actividad, onClick }) {
+function ActividadCard({ actividad, onClick, tieneConflicto = false }) {
     const subtareas = actividad.subactivities || []
-    const completadas = subtareas.filter(s => s.completada).length
-    const pendientes = subtareas.filter(s => !s.completada).length
+    const completadas = subtareas.filter(s => s.estado === 'hecha' || s.completada).length
+    const pendientes = subtareas.filter(s => s.estado !== 'hecha' && !s.completada).length
     const total = subtareas.length
     const porcentaje = total > 0 ? Math.round((completadas / total) * 100) : 0
 
@@ -50,9 +50,16 @@ function ActividadCard({ actividad, onClick }) {
                         </span>
                     )}
                 </div>
-                <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-brand transition-colors shrink-0 font-semibold border border-[#E1E4E7] px-3 py-1.5 rounded-lg">
-                    Ver detalle <ExternalLink size={12} />
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                    {tieneConflicto && (
+                        <span title="Sobrecarga de horas en algún día" className="flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200">
+                            <AlertTriangle size={12} /> Sobrecarga
+                        </span>
+                    )}
+                    <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-brand transition-colors font-semibold border border-[#E1E4E7] px-3 py-1.5 rounded-lg">
+                        Ver detalle <ExternalLink size={12} />
+                    </button>
+                </div>
             </div>
 
             {/* Título */}

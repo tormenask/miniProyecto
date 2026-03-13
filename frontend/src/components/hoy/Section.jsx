@@ -1,4 +1,4 @@
-import TaskCard from "./TaskCard"
+import SubtareaHoyCard from "./SubtareaHoyCard"
 
 const CONFIG = {
     vencidas: {
@@ -21,7 +21,7 @@ const CONFIG = {
     }
 }
 
-function Section({ variante, items, onClickItem }) {
+function Section({ variante, items, onRefresh }) {
     const { label, textColor, bgColor, badgeColor } = CONFIG[variante]
 
     return (
@@ -34,15 +34,18 @@ function Section({ variante, items, onClickItem }) {
             </div>
 
             {items.length === 0 ? (
-                <p className="text-xs text-gray-400 text-center py-6">Sin actividades</p>
+                <p className="text-xs text-gray-400 text-center py-6">Sin subtareas</p>
             ) : (
-                <div className="space-y-3">
-                    {items.map((act) => (
-                        <TaskCard
-                            key={act.id}
-                            actividad={act}
+                <div className="space-y-2">
+                    {items.map(sub => (
+                        <SubtareaHoyCard
+                            key={sub.id}
+                            sub={sub}
+                            actividadId={sub.activity?.id}
+                            actividadTitulo={sub.activity?.titulo}
+                            actividadCurso={sub.activity?.curso}
                             variante={variante}
-                            onClick={() => onClickItem(act.id)}
+                            onRefresh={onRefresh}
                         />
                     ))}
                 </div>

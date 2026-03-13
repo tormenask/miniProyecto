@@ -1,33 +1,20 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { CalendarClock, Sun, LayoutList, Plus, LogOut, User, ChevronDown, UserCircle } from 'lucide-react'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+import useProfile from '../hooks/useProfile'
 
 function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
   const dropdownRef = useRef(null)
+  const perfil = useProfile()
 
   const [dropdownAbierto, setDropdownAbierto] = useState(false)
   const [modalLogout, setModalLogout] = useState(false)
-  const [nombreMostrado, setNombreMostrado] = useState(localStorage.getItem('username') || 'Usuario')
 
-  // Cargar nombre real desde perfil al montar
-  useEffect(() => {
-    const token = localStorage.getItem('access_token')
-    if (!token) return
-    fetch(`${API_URL}/api/users/profile/`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (!data) return
-        const nombre = [data.first_name, data.last_name].filter(Boolean).join(' ').trim()
-        setNombreMostrado(nombre || data.username || localStorage.getItem('username') || 'Usuario')
-      })
-      .catch(() => {})
-  }, [])
+  const nombreMostrado = perfil
+    ? ([perfil.first_name, perfil.last_name].filter(Boolean).join(' ').trim() || perfil.username)
+    : (localStorage.getItem('username') || 'Usuario')
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {

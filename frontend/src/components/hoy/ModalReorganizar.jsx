@@ -6,7 +6,9 @@ const formatFecha = (fechaStr) => new Date(fechaStr + 'T00:00:00').toLocaleDateS
 })
 
 export default function ModalReorganizar({ open, onClose, hoy, diasDisponibles, seleccion, setSeleccion, moviendo, errorMover, exitoMover, onConfirmar }) {
-    const subsExceso = hoy.flatMap(a => a.subactivities || []).filter(s => !s.completada)
+    // hoy items are now subtareas directly (new backend format)
+    const subsExceso = hoy
+        .filter(s => s.estado !== 'hecha' && !s.completada)
         .sort((a, b) => parseFloat(b.horas_estimadas) - parseFloat(a.horas_estimadas))
 
     return (
@@ -25,14 +27,13 @@ export default function ModalReorganizar({ open, onClose, hoy, diasDisponibles, 
 
                         <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
                             {subsExceso.map(sub => {
-                                const actPadre = hoy.find(a => a.subactivities?.some(s => s.id === sub.id))
                                 const fechaSel = seleccion[sub.id]
                                 return (
                                     <div key={sub.id} className={`p-3 rounded-xl border transition-all ${fechaSel ? 'border-amber-200 bg-amber-50' : 'border-gray-100 bg-gray-50 opacity-60'}`}>
                                         <div className="flex items-start justify-between gap-2 mb-2">
                                             <div>
                                                 <p className="text-sm font-bold text-gray-800">{sub.nombre}</p>
-                                                <p className="text-xs text-gray-400">{actPadre?.titulo} · {sub.horas_estimadas}h</p>
+                                                <p className="text-xs text-gray-400">{sub.activity?.titulo} · {sub.horas_estimadas}h</p>
                                             </div>
                                             <button
                                                 onClick={() => setSeleccion(prev => ({ ...prev, [sub.id]: prev[sub.id] ? null : diasDisponibles[0]?.fecha }))}

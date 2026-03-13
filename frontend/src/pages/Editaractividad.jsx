@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { Save, ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
 import Navbar from '../components/Navbar'
-import ErrorAlert from '../components/ErrorAlert'
+import Alert from '../components/Alert'
 import Select from '../components/Select'
 import { CURSOS } from '../utils/cursos'
 
@@ -92,18 +92,15 @@ function EditarActividad() {
   }
 
   const validate = () => {
-    // Truncar a minutos para que el minuto actual nunca quede "en el pasado"
     const ahora = new Date()
     ahora.setSeconds(0, 0)
-    const errs  = {}
-    if (!formData.titulo.trim())    errs.titulo       = 'El título es obligatorio.'
-    if (!formData.curso)            errs.curso        = 'Selecciona un curso.'
-    if (!formData.fecha_evento)     errs.fecha_evento = 'La fecha de inicio es obligatoria.'
-    else if (new Date(formData.fecha_evento) < ahora)
-                                    errs.fecha_evento = 'La fecha de inicio no puede ser en el pasado.'
-    if (!formData.fecha_limite)     errs.fecha_limite = 'La fecha límite es obligatoria.'
-    else if (new Date(formData.fecha_limite) < ahora)
-                                    errs.fecha_limite = 'La fecha límite no puede ser en el pasado.'
+    const errs = {}
+    if (!formData.titulo.trim()) errs.titulo = 'El título es obligatorio.'
+    if (!formData.curso)         errs.curso  = 'Selecciona un curso.'
+    if (formData.fecha_evento && new Date(formData.fecha_evento) < ahora)
+      errs.fecha_evento = 'La fecha de inicio no puede ser en el pasado.'
+    if (formData.fecha_limite && new Date(formData.fecha_limite) < ahora)
+      errs.fecha_limite = 'La fecha límite no puede ser en el pasado.'
     return errs
   }
 
@@ -180,7 +177,7 @@ function EditarActividad() {
           <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Editar Actividad</h1>
           <p className="text-gray-400 text-sm mb-6">Modifica los campos que necesites y guarda los cambios.</p>
 
-          <ErrorAlert mensaje={error} />
+          <Alert mensaje={error} />
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5 mt-4">
             {/* Título */}
@@ -229,7 +226,7 @@ function EditarActividad() {
             {/* Fechas */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha y Hora de Inicio *</label>
+                <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha y Hora de Inicio <span className="font-normal text-gray-400">(Opcional)</span></label>
                 <input
                   type="datetime-local" name="fecha_evento"
                   value={formData.fecha_evento} onChange={handleChange}
@@ -238,7 +235,7 @@ function EditarActividad() {
                 <FieldError msg={errores.fecha_evento} />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha Límite *</label>
+                <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha Límite <span className="font-normal text-gray-400">(Opcional)</span></label>
                 <input
                   type="datetime-local" name="fecha_limite"
                   value={formData.fecha_limite} onChange={handleChange}

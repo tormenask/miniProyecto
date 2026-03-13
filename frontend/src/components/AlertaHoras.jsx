@@ -12,7 +12,7 @@ function AlertaHoras({ conflictos, limite, onMoverDia, onReducirHoras, onCerrar 
                         Límite de {limite}h/día superado
                     </p>
                 </div>
-                <button onClick={onCerrar} className="text-yellow-400 hover:text-yellow-600 transition-colors">
+                <button onClick={onCerrar} aria-label="Cerrar alerta" className="text-yellow-400 hover:text-yellow-600 transition-colors">
                     <X size={16} />
                 </button>
             </div>

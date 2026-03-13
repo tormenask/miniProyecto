@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate, useParams, useLocation } from "react-router-dom"
 import { ArrowLeft, Pencil, Trash2, Loader2, AlertCircle, Calendar, BookOpen, Clock } from "lucide-react"
 import Navbar from "../components/Navbar"
-import ErrorAlert from "../components/ErrorAlert"
+import Alert from "../components/Alert"
 import SubtareaList from "../components/SubtareaList"
 import Toast from "../components/Toast"
 import useActividad from "../hooks/useActividad"
@@ -24,7 +24,7 @@ function DetalleActividad() {
   const location = useLocation()
   const { actividad, cargando, error } = useActividad(id)
   const { actividades } = useActividades()
-  const { subtareas, setSubtareas, guardando, agregar, eliminar, toggle, editar, moverANuevaActividad } = useSubtareas(id)
+  const { subtareas, setSubtareas, guardando, agregar, eliminar, toggle, posponer, editar, moverANuevaActividad } = useSubtareas(id)
   const [eliminando, setEliminando] = useState(false)
   const [confirmarEliminar, setConfirmarEliminar] = useState(false)
   const [errorAccion, setErrorAccion] = useState(null)
@@ -117,7 +117,7 @@ function DetalleActividad() {
           Volver a mis actividades
         </button>
 
-        <ErrorAlert mensaje={errorAccion} />
+        <Alert mensaje={errorAccion} />
 
         <div className="bg-white rounded-2xl shadow-sm border border-[#E1E4E7] p-8 mb-6">
           <div className="flex items-start justify-between gap-4 mb-6">
@@ -201,6 +201,7 @@ function DetalleActividad() {
           onAgregar={agregar}
           onToggle={toggle}
           onEliminar={eliminar}
+          onPosponer={posponer}
           onEditarSub={editar}
           onMoverANuevaActividad={moverANuevaActividad}
           guardando={guardando}

@@ -24,9 +24,37 @@ export function calcularHorasGlobalesPorDia(todasActividades, subtareasActuales,
 
 export function detectarConflictos(todasActividades, subtareasActuales, actividadIdActual, limite) {
     const horasPorDia = calcularHorasGlobalesPorDia(todasActividades, subtareasActuales, actividadIdActual)
+
+    // Solo mostrar conflictos en días donde la actividad actual tiene subtareas
+    const fechasPropias = new Set(
+        subtareasActuales
+            .filter(s => s.fecha_objetivo)
+            .map(s => s.fecha_objetivo.slice(0, 10))
+    )
+
     return Object.entries(horasPorDia)
-        .filter(([, horas]) => horas > limite)
+        .filter(([fecha, horas]) => horas > limite && fechasPropias.has(fecha))
         .map(([fecha, horas]) => ({ fecha, horas }))
+}
+
+/**
+ * Indica si una actividad tiene alguna subtarea en un día con sobrecarga global.
+ * Se usa para mostrar el icono de alerta en ActividadCard.
+ */
+export function actividadTieneConflicto(actividad, todasActividades, limite) {
+    const mapa = {}
+    todasActividades.forEach(act => {
+        ;(act.subactivities || []).forEach(sub => {
+            if (!sub.fecha_objetivo || !sub.horas_estimadas) return
+            const fecha = sub.fecha_objetivo.slice(0, 10)
+            mapa[fecha] = (mapa[fecha] || 0) + parseFloat(sub.horas_estimadas)
+        })
+    })
+
+    return (actividad.subactivities || []).some(sub => {
+        if (!sub.fecha_objetivo) return false
+        return (mapa[sub.fecha_objetivo.slice(0, 10)] || 0) > limite
+    })
 }
 
 export function sugerirDiasDisponibles(todasActividades, limite, diasABuscar = 7) {

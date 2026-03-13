@@ -15,7 +15,9 @@ export default function useReorganizar(hoy, actividades, limite, onExito) {
     const abrirModal = () => {
         const preSeleccion = {}
         const horasOcupadas = {}
-        const subsExceso = hoy.flatMap(a => a.subactivities || []).filter(s => !s.completada)
+        // hoy items are now subtareas directly (new backend format)
+        const subsExceso = hoy
+            .filter(s => s.estado !== 'hecha' && !s.completada)
             .sort((a, b) => parseFloat(b.horas_estimadas) - parseFloat(a.horas_estimadas))
 
         subsExceso.forEach(sub => {
@@ -44,15 +46,16 @@ export default function useReorganizar(hoy, actividades, limite, onExito) {
 
         try {
             for (const [subId, nuevaFecha] of subsAMover) {
-                const actividadPadre = hoy.find(a => a.subactivities?.some(s => String(s.id) === String(subId)))
-                const sub = actividadPadre?.subactivities?.find(s => String(s.id) === String(subId))
-                if (!actividadPadre || !sub) continue
+                // New format: activity data is nested in sub.activity
+                const sub = hoy.find(s => String(s.id) === String(subId))
+                if (!sub) continue
+                const act = sub.activity
 
                 const resAct = await fetch(`${API_URL}/api/activities/`, {
                     method: "POST", headers,
                     body: JSON.stringify({
-                        titulo: actividadPadre.titulo, tipo: actividadPadre.tipo,
-                        curso: actividadPadre.curso, descripcion: actividadPadre.descripcion || '',
+                        titulo: act.titulo, tipo: act.tipo,
+                        curso: act.curso, descripcion: act.descripcion || '',
                         fecha_evento: `${nuevaFecha}T00:00:00`, fecha_limite: `${nuevaFecha}T23:59:00`,
                     })
                 })
@@ -61,9 +64,9 @@ export default function useReorganizar(hoy, actividades, limite, onExito) {
 
                 await fetch(`${API_URL}/api/activities/${actCreada.id}/subtasks/`, {
                     method: "POST", headers,
-                    body: JSON.stringify({ nombre: sub.nombre, fecha_objetivo: nuevaFecha, horas_estimadas: sub.horas_estimadas, completada: false })
+                    body: JSON.stringify({ nombre: sub.nombre, fecha_objetivo: nuevaFecha, horas_estimadas: sub.horas_estimadas })
                 })
-                await fetch(`${API_URL}/api/activities/${actividadPadre.id}/subtasks/${subId}/`, { method: "DELETE", headers })
+                await fetch(`${API_URL}/api/activities/${act.id}/subtasks/${subId}/`, { method: "DELETE", headers })
             }
 
             setExitoMover(true)

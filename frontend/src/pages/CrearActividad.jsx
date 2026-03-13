@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Save, ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
 import Navbar from '../components/Navbar'
-import ErrorAlert from '../components/ErrorAlert'
+import Alert from '../components/Alert'
 import SubtareaList from '../components/SubtareaList'
 import Select from '../components/Select'
 import useSubtareas from '../hooks/useSubtareas'
@@ -51,18 +51,14 @@ function CrearActividad() {
   }
 
   const validate = () => {
-    // Truncar a minutos para que el minuto actual nunca quede "en el pasado"
-    // (datetime-local solo tiene precisión de minutos, no segundos)
     const ahora = new Date()
     ahora.setSeconds(0, 0)
     const errs = {}
     if (!formData.titulo.trim()) errs.titulo = 'El título es obligatorio.'
     if (!formData.curso) errs.curso = 'Selecciona un curso.'
-    if (!formData.fecha_evento) errs.fecha_evento = 'La fecha de inicio es obligatoria.'
-    else if (new Date(formData.fecha_evento) < ahora)
+    if (formData.fecha_evento && new Date(formData.fecha_evento) < ahora)
       errs.fecha_evento = 'La fecha de inicio no puede ser en el pasado.'
-    if (!formData.fecha_limite) errs.fecha_limite = 'La fecha límite es obligatoria.'
-    else if (new Date(formData.fecha_limite) < ahora)
+    if (formData.fecha_limite && new Date(formData.fecha_limite) < ahora)
       errs.fecha_limite = 'La fecha límite no puede ser en el pasado.'
     return errs
   }
@@ -127,7 +123,7 @@ function CrearActividad() {
           <div className="bg-white rounded-xl shadow-sm border border-[#E1E4E7] p-8">
             <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Nueva Actividad</h1>
             <p className="text-gray-500 text-sm mb-6">Completa los detalles de tu actividad o examen.</p>
-            <ErrorAlert mensaje={error} />
+            <Alert mensaje={error} />
 
             <div className="space-y-5 mt-4">
               <div>
@@ -170,7 +166,7 @@ function CrearActividad() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha y Hora de Inicio *</label>
+                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha y Hora de Inicio <span className="font-normal text-gray-400">(Opcional)</span></label>
                   <input
                     type="datetime-local" name="fecha_evento"
                     value={formData.fecha_evento} onChange={handleChange}
@@ -179,7 +175,7 @@ function CrearActividad() {
                   <FieldError msg={errores.fecha_evento} />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha Límite de Entrega *</label>
+                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha Límite de Entrega <span className="font-normal text-gray-400">(Opcional)</span></label>
                   <input
                     type="datetime-local" name="fecha_limite"
                     value={formData.fecha_limite} onChange={handleChange}

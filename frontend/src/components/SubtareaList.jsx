@@ -1,15 +1,14 @@
 import { useState } from 'react'
-import { Plus, Hourglass, Loader2 } from 'lucide-react'
+import { Plus, Hourglass, Loader2, Settings2 } from 'lucide-react'
 import SubtareaItem from './SubtareaItem'
 import SubtareaForm from './SubtareaForm'
 import Modal from './Modal'
 import AlertaHoras from './AlertaHoras'
-import ConfigLimiteHoras from './ConfigLimiteHoras'
 import useLimiteHoras from '../hooks/useLimiteHoras'
 import { detectarConflictos } from '../utils/horasUtils'
 
 function SubtareaList({
-  subtareas, onAgregar, onToggle, onEliminar, guardando = false,
+  subtareas, onAgregar, onToggle, onEliminar, onPosponer, guardando = false,
   fechaEvento, fechaLimite, onEditarSub, onMoverANuevaActividad,
   todasActividades = [], actividadId = null, actividadData = null
 }) {
@@ -22,16 +21,17 @@ function SubtareaList({
   const [errorMover, setErrorMover] = useState(null)
   const [mostrarAlerta, setMostrarAlerta] = useState(true)
 
-  // Editar subactividad 
+  // Editar subactividad
   const [modalEditar, setModalEditar] = useState(null) // { sub, campos }
   const [guardandoEditar, setGuardandoEditar] = useState(false)
   const [conflictoEditar, setConflictoEditar] = useState(null) // data del 409
   const [errorEditar, setErrorEditar] = useState(null)
+  const [horasReducir, setHorasReducir] = useState('')
 
   const { limite, setLimite, cargando: cargandoLimite } = useLimiteHoras()
 
   const totalHoras = subtareas.reduce((acc, s) => acc + parseFloat(s.horas_estimadas || 0), 0)
-  const completadas = subtareas.filter((s) => s.completada).length
+  const completadas = subtareas.filter((s) => s.estado === 'hecha' || s.completada).length
   const progreso = subtareas.length > 0 ? Math.round((completadas / subtareas.length) * 100) : 0
   const conflictos = detectarConflictos(todasActividades, subtareas, actividadId, limite)
 
@@ -88,12 +88,14 @@ function SubtareaList({
     })
     setConflictoEditar(null)
     setErrorEditar(null)
+    setHorasReducir('')
   }
 
   const handleCerrarEditar = () => {
     setModalEditar(null)
     setConflictoEditar(null)
     setErrorEditar(null)
+    setHorasReducir('')
   }
 
   // Guardar edición — detecta 409 conflicto
@@ -110,12 +112,36 @@ function SubtareaList({
     }
     if (resultado.conflicto) {
       setConflictoEditar(resultado.data)
+      setHorasReducir(String(modalEditar.campos.horas_estimadas))
       return
     }
     if (!resultado.ok) {
       setErrorEditar('Error al guardar los cambios.')
       return
     }
+    handleCerrarEditar()
+    setMostrarAlerta(true)
+  }
+
+  // Resolver conflicto opción B: reducir horas directamente desde el panel 409
+  const handleConfirmarReducir = async () => {
+    if (!modalEditar) return
+    const nuevasHoras = parseFloat(horasReducir)
+    if (!nuevasHoras || nuevasHoras < 0.5) return
+    setModalEditar(prev => ({ ...prev, campos: { ...prev.campos, horas_estimadas: nuevasHoras } }))
+    // Re-intentar guardado con las horas reducidas (sin forzar)
+    setGuardandoEditar(true)
+    setErrorEditar(null)
+    const resultado = await onEditarSub(modalEditar.sub, { ...modalEditar.campos, horas_estimadas: nuevasHoras }, false)
+    setGuardandoEditar(false)
+    if (!resultado) { setErrorEditar('Error al guardar.'); return }
+    if (resultado.conflicto) {
+      setConflictoEditar(resultado.data)
+      setHorasReducir(String(nuevasHoras))
+      setErrorEditar('Sigue habiendo conflicto con esas horas. Prueba un valor menor.')
+      return
+    }
+    if (!resultado.ok) { setErrorEditar('Error al guardar.'); return }
     handleCerrarEditar()
     setMostrarAlerta(true)
   }
@@ -160,7 +186,16 @@ function SubtareaList({
 
       {/* Config límite */}
       {!cargandoLimite && (
-        <ConfigLimiteHoras limite={limite} onChange={(v) => { setLimite(v); setMostrarAlerta(true) }} />
+        <div className="flex items-center gap-3 bg-white border border-[#E1E4E7] rounded-xl px-4 py-3">
+          <Settings2 size={16} className="text-gray-400 shrink-0" />
+          <span className="text-sm text-gray-600 font-medium">Límite diario:</span>
+          <input
+            type="number" min="1" max="24" step="0.5" value={limite}
+            onChange={(e) => { setLimite(parseFloat(e.target.value)); setMostrarAlerta(true) }}
+            className="w-16 px-2 py-1 text-sm border border-[#E1E4E7] rounded-lg focus:ring-2 focus:ring-brand outline-none text-center font-bold"
+          />
+          <span className="text-sm text-gray-400">horas/día</span>
+        </div>
       )}
 
       {/* Alerta */}
@@ -212,6 +247,7 @@ function SubtareaList({
               onToggle={onToggle}
               onEliminar={onEliminar}
               onEditar={onEditarSub ? handleAbrirEditar : undefined}
+              onPosponer={onPosponer}
             />
           ))}
         </div>
@@ -249,9 +285,16 @@ function SubtareaList({
                   <input
                     type="date"
                     value={modalEditar.campos.fecha_objetivo}
+                    min={fechaEvento ? fechaEvento.slice(0, 10) : undefined}
+                    max={fechaLimite ? fechaLimite.slice(0, 10) : undefined}
                     onChange={(e) => setModalEditar(prev => ({ ...prev, campos: { ...prev.campos, fecha_objetivo: e.target.value } }))}
                     className="w-full px-3 py-2 text-sm border border-[#E1E4E7] rounded-lg focus:ring-2 focus:ring-brand outline-none"
                   />
+                  {(fechaEvento || fechaLimite) && (
+                    <p className="text-[10px] text-gray-400 mt-1">
+                      Rango válido: {fechaEvento?.slice(0, 10)} – {fechaLimite?.slice(0, 10)}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 font-semibold block mb-1">Horas estimadas</label>
@@ -285,6 +328,9 @@ function SubtareaList({
                   <p className="text-xs text-gray-500 mt-1">
                     Planeadas: <span className="font-bold">{conflictoEditar.horas_planificadas}h</span>
                     {' '}· Límite: <span className="font-bold">{conflictoEditar.limite}h</span>
+                    {conflictoEditar.puede_reducir && (
+                      <>{' '}· Máximo permitido: <span className="font-bold text-brand">{conflictoEditar.max_horas_permitidas}h</span></>
+                    )}
                   </p>
                 </div>
 
@@ -311,7 +357,40 @@ function SubtareaList({
                   </div>
                 )}
 
-                {/* Opción B: forzar */}
+                {/* Opción B: reducir horas */}
+                <div className="border-t border-[#E1E4E7] pt-3 space-y-2">
+                  <p className="text-xs text-gray-500 font-semibold">⏱ Reducir horas estimadas:</p>
+                  {conflictoEditar.puede_reducir === false ? (
+                    <p className="text-xs text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                      El día ya tiene {conflictoEditar.horas_planificadas}h planificadas, superando el límite de {conflictoEditar.limite}h.
+                      No es posible añadir ninguna hora en este día. Mueve la subtarea a otro día.
+                    </p>
+                  ) : (
+                    <>
+                      <p className="text-[10px] text-gray-400">
+                        Máximo que puedes asignar: <span className="font-bold text-brand">{conflictoEditar.max_horas_permitidas}h</span>
+                      </p>
+                      <div className="flex gap-2 items-center">
+                        <input
+                          type="number" min="0.5" step="0.5"
+                          max={conflictoEditar.max_horas_permitidas}
+                          value={horasReducir}
+                          onChange={(e) => setHorasReducir(e.target.value)}
+                          className="w-24 px-3 py-1.5 text-sm border border-[#E1E4E7] rounded-lg focus:ring-2 focus:ring-brand outline-none"
+                        />
+                        <span className="text-xs text-gray-400">horas</span>
+                        <button type="button" onClick={handleConfirmarReducir}
+                          disabled={guardandoEditar || !horasReducir || parseFloat(horasReducir) < 0.5}
+                          className="flex-1 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-1">
+                          {guardandoEditar ? <><Loader2 className="animate-spin" size={12} /> Guardando...</> : 'Confirmar'}
+                        </button>
+                      </div>
+                      {errorEditar && <p className="text-xs text-red-500 font-medium">{errorEditar}</p>}
+                    </>
+                  )}
+                </div>
+
+                {/* Opción C: forzar */}
                 <div className="border-t border-[#E1E4E7] pt-3 space-y-2">
                   <p className="text-xs text-gray-400">O bien, guarda igualmente superando el límite:</p>
                   <button type="button" onClick={() => handleGuardarEditar(true)} disabled={guardandoEditar}
