@@ -10,7 +10,7 @@ import { ChevronDown, Check } from 'lucide-react'
  *  - error: boolean para mostrar borde de error
  *  - className: clases extra para el contenedor
  */
-function Select({ name, value, onChange, options, placeholder = 'Selecciona una opción', error = false, className = '' }) {
+function Select({ id, name, value, onChange, options, placeholder = 'Selecciona una opción', error = false, className = '' }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -38,6 +38,7 @@ function Select({ name, value, onChange, options, placeholder = 'Selecciona una 
   return (
     <div ref={ref} className={`relative ${className}`}>
       <button
+        id={id}
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
