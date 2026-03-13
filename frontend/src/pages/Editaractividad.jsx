@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { Save, ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
 import Navbar from '../components/Navbar'
-import ErrorAlert from '../components/ErrorAlert'
+import Alert from '../components/Alert'
 import Select from '../components/Select'
 import { CURSOS } from '../utils/cursos'
 
@@ -180,7 +180,7 @@ function EditarActividad() {
           <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Editar Actividad</h1>
           <p className="text-gray-400 text-sm mb-6">Modifica los campos que necesites y guarda los cambios.</p>
 
-          <ErrorAlert mensaje={error} />
+          <Alert mensaje={error} />
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5 mt-4">
             {/* Título */}
