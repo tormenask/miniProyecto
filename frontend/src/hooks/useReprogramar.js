@@ -34,7 +34,15 @@ function useReprogramar() {
       return { ok: false, conflicto: true, data }
     }
     if (!res.ok) {
-      return { ok: false, conflicto: false }
+      let mensaje = null
+      try {
+        const data = await res.json()
+        const fields = data?.error?.fields
+        // Extraer el mensaje de validación específico del campo
+        if (fields) mensaje = Object.values(fields).join(' ')
+        else if (data?.error?.message) mensaje = data.error.message
+      } catch { /* body no es JSON */ }
+      return { ok: false, conflicto: false, mensaje }
     }
     const updated = await res.json()
     return { ok: true, data: updated }
@@ -55,7 +63,7 @@ function useReprogramar() {
         setConflicto({ subtareaId, actividadId, data: result.data })
         return null
       }
-      setError('Error al guardar los cambios.')
+      setError(result.mensaje ?? 'Error al guardar los cambios.')
       return null
     } catch {
       setError('Error de conexión. Intenta de nuevo.')
@@ -82,7 +90,7 @@ function useReprogramar() {
         setConflicto(prev => ({ ...prev, data: result.data }))
         return null
       }
-      setError('Error al guardar los cambios.')
+      setError(result.mensaje ?? 'Error al guardar los cambios.')
       return null
     } catch {
       setError('Error de conexión. Intenta de nuevo.')
