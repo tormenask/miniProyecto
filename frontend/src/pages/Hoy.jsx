@@ -1,6 +1,12 @@
-import { CalendarDays, AlertTriangle } from "lucide-react"
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { CalendarDays, AlertTriangle, X } from "lucide-react"
 import Navbar from "../components/Navbar"
-import TodayView from "../components/hoy/TodayView"
+import TaskSkeleton from "../components/hoy/TaskSkeleton"
+import EmptyTasks from "../components/hoy/EmptyTasks"
+import ErrorState from "../components/hoy/ErrorState"
+import SortRules from "../components/hoy/SortRules"
+import Section from "../components/hoy/Section"
 import ResumenHoras from "../components/hoy/ResumenHoras"
 import ModalReorganizar from "../components/hoy/ModalReorganizar"
 import useHoy from "../hooks/useHoy"
@@ -8,8 +14,18 @@ import useActividades from "../hooks/useActividades"
 import useLimiteHoras from "../hooks/useLimiteHoras"
 import useReorganizar from "../hooks/useReorganizar"
 
+const ESTADOS = [
+  { value: '', label: 'Todos los estados' },
+  { value: 'pendiente', label: 'Pendiente' },
+  { value: 'pospuesta', label: 'Pospuesta' },
+]
+
 function Hoy() {
-  const { vencidas, hoy, proximas, loading, error, fetchTasks } = useHoy()
+  const navigate = useNavigate()
+  const [filtroCurso, setFiltroCurso] = useState('')
+  const [filtroEstado, setFiltroEstado] = useState('')
+
+  const { vencidas, hoy, proximas, summary, loading, error, fetchTasks } = useHoy({ curso: filtroCurso, estado: filtroEstado })
   const { actividades } = useActividades()
   const { limite } = useLimiteHoras()
 
@@ -19,9 +35,16 @@ function Hoy() {
   const fecha = new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" })
   const fechaCapitalizada = fecha.charAt(0).toUpperCase() + fecha.slice(1)
 
-  const horasTotalesHoy = hoy.flatMap(a => a.subactivities || [])
-    .reduce((acc, s) => acc + parseFloat(s.horas_estimadas || 0), 0)
+  // Items are now subtareas directly (new backend format)
+  const horasTotalesHoy = summary?.horas_planificadas_hoy
+    ?? hoy.reduce((acc, s) => acc + parseFloat(s.horas_estimadas || 0), 0)
   const superaLimite = !loading && horasTotalesHoy > limite
+
+  // Derive unique course list from all activities
+  const cursos = [...new Set(actividades.map(a => a.curso).filter(Boolean))].sort()
+
+  const hayFiltros = filtroCurso || filtroEstado
+  const limpiarFiltros = () => { setFiltroCurso(''); setFiltroEstado('') }
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -48,7 +71,7 @@ function Hoy() {
           </div>
         )}
 
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <CalendarDays size={20} className="text-gray-600" />
@@ -65,9 +88,50 @@ function Hoy() {
           </div>
         </div>
 
+        {/* Filtros */}
+        <div className="flex items-center gap-3 mb-6 flex-wrap">
+          <select
+            value={filtroCurso}
+            onChange={e => setFiltroCurso(e.target.value)}
+            className="text-sm border border-[#E1E4E7] rounded-lg px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand"
+            aria-label="Filtrar por curso"
+          >
+            <option value="">Todos los cursos</option>
+            {cursos.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <select
+            value={filtroEstado}
+            onChange={e => setFiltroEstado(e.target.value)}
+            className="text-sm border border-[#E1E4E7] rounded-lg px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand"
+            aria-label="Filtrar por estado"
+          >
+            {ESTADOS.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
+          </select>
+          {hayFiltros && (
+            <button type="button" onClick={limpiarFiltros}
+              className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-700 border border-[#E1E4E7] px-3 py-2 rounded-lg bg-white transition-colors">
+              <X size={12} /> Limpiar filtros
+            </button>
+          )}
+        </div>
+
         {!loading && <ResumenHoras hoy={hoy} vencidas={vencidas} proximas={proximas} limite={limite} />}
 
-        <TodayView loading={loading} error={error} vencidas={vencidas} hoy={hoy} proximas={proximas} retryFetch={fetchTasks} />
+        {loading && <TaskSkeleton />}
+        {!loading && error && <ErrorState onReintentar={fetchTasks} />}
+        {!loading && !error && vencidas.length === 0 && hoy.length === 0 && proximas.length === 0 && (
+          <EmptyTasks onCrear={() => navigate("/CrearActividad")} />
+        )}
+        {!loading && !error && (vencidas.length > 0 || hoy.length > 0 || proximas.length > 0) && (
+          <div>
+            <SortRules />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start mt-4">
+              <Section variante="vencidas" items={vencidas} onRefresh={fetchTasks} />
+              <Section variante="hoy" items={hoy} onRefresh={fetchTasks} />
+              <Section variante="proximas" items={proximas} onRefresh={fetchTasks} />
+            </div>
+          </div>
+        )}
       </div>
 
       <ModalReorganizar

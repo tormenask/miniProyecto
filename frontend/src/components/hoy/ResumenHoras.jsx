@@ -1,12 +1,12 @@
 import { Clock, CheckCircle2, AlertTriangle, TrendingUp, Zap } from "lucide-react"
 
 function ResumenHoras({ hoy, vencidas, proximas, limite }) {
-    const todasHoy = hoy.flatMap(a => a.subactivities || [])
-    const horasTotalesHoy = todasHoy.reduce((acc, s) => acc + parseFloat(s.horas_estimadas || 0), 0)
-    const horasCompletadasHoy = todasHoy.filter(s => s.completada).reduce((acc, s) => acc + parseFloat(s.horas_estimadas || 0), 0)
+    // Items are now subtareas directly (new backend format)
+    const horasTotalesHoy = hoy.reduce((acc, s) => acc + parseFloat(s.horas_estimadas || 0), 0)
+    const horasCompletadasHoy = hoy.filter(s => s.estado === 'hecha' || s.completada).reduce((acc, s) => acc + parseFloat(s.horas_estimadas || 0), 0)
     const horasPendientesHoy = horasTotalesHoy - horasCompletadasHoy
-    const horasVencidas = vencidas.flatMap(a => a.subactivities || []).filter(s => !s.completada).reduce((acc, s) => acc + parseFloat(s.horas_estimadas || 0), 0)
-    const horasProximas = proximas.flatMap(a => a.subactivities || []).reduce((acc, s) => acc + parseFloat(s.horas_estimadas || 0), 0)
+    const horasVencidas = vencidas.filter(s => s.estado !== 'hecha' && !s.completada).reduce((acc, s) => acc + parseFloat(s.horas_estimadas || 0), 0)
+    const horasProximas = proximas.reduce((acc, s) => acc + parseFloat(s.horas_estimadas || 0), 0)
     const superaLimite = horasTotalesHoy > limite
     const porcentajeCompletado = horasTotalesHoy > 0 ? Math.round((horasCompletadasHoy / horasTotalesHoy) * 100) : 0
 
@@ -41,9 +41,9 @@ function ResumenHoras({ hoy, vencidas, proximas, limite }) {
             {/* Métricas */}
             {[
                 { label: 'Completadas', valor: horasCompletadasHoy, sub: `${porcentajeCompletado}%`, icon: <CheckCircle2 size={12} />, color: 'text-green-500' },
-                { label: 'Pendientes', valor: horasPendientesHoy, sub: `${todasHoy.filter(s => !s.completada).length} sub`, icon: <Clock size={12} />, color: 'text-orange-400' },
-                { label: 'Vencidas', valor: horasVencidas, sub: `${vencidas.length} act`, icon: <TrendingUp size={12} />, color: 'text-red-400' },
-                { label: 'Próximas', valor: horasProximas, sub: `${proximas.length} act`, icon: <Clock size={12} />, color: 'text-blue-400' },
+                { label: 'Pendientes', valor: horasPendientesHoy, sub: `${hoy.filter(s => s.estado !== 'hecha' && !s.completada).length} sub`, icon: <Clock size={12} />, color: 'text-orange-400' },
+                { label: 'Vencidas', valor: horasVencidas, sub: `${vencidas.length} sub`, icon: <TrendingUp size={12} />, color: 'text-red-400' },
+                { label: 'Próximas', valor: horasProximas, sub: `${proximas.length} sub`, icon: <Clock size={12} />, color: 'text-blue-400' },
             ].map(({ label, valor, sub, icon, color }) => (
                 <div key={label} className="flex items-center gap-2 pr-4 border-r border-gray-100 last:border-0 last:pr-0">
                     <span className={color}>{icon}</span>
