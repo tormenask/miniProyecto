@@ -26,7 +26,23 @@ function ConflictoModal({ open, onClose, conflictoData, currentFecha, onResolver
 
   if (!open || !conflictoData) return null
 
-  const { mensaje, horas_planificadas, limite, max_horas_permitidas, puede_reducir, sugerencias = [] } = conflictoData
+  // Normaliza el nuevo formato del backend { error: { message, detail, suggestions } }
+  // y también mantiene compatibilidad con el formato legado
+  const errorData = conflictoData?.error ?? conflictoData
+  const mensaje = errorData.message ?? errorData.mensaje ?? ''
+  const detail = errorData.detail ?? {}
+  const horas_planificadas = detail.planned_hours ?? errorData.horas_planificadas ?? 0
+  const limite = detail.daily_limit ?? errorData.limite ?? 0
+
+  const suggestions = errorData.suggestions ?? []
+  const moveSug = suggestions.find(s => s.type === 'move')
+  const reduceSug = suggestions.find(s => s.type === 'reduce')
+
+  const sugerencias = (moveSug?.available_dates ?? errorData.sugerencias ?? []).map(d =>
+    d.date ? { fecha: d.date, horas_disponibles: d.available_hours } : d
+  )
+  const max_horas_permitidas = reduceSug?.max_without_conflict ?? errorData.max_horas_permitidas ?? 0
+  const puede_reducir = reduceSug != null && max_horas_permitidas > 0
 
   const error = errorExterno || errorLocal
 
@@ -40,11 +56,14 @@ function ConflictoModal({ open, onClose, conflictoData, currentFecha, onResolver
     }
   }
 
+  // Fecha que causó el conflicto (nueva fecha destino que el usuario eligió)
+  const fechaDestino = detail.target_date || currentFecha
+
   const handleReducir = async () => {
     const horas = parseFloat(horasReducir)
     if (isNaN(horas) || horas < 0.5) return
     setErrorLocal(null)
-    const result = await onResolver({ fecha_objetivo: currentFecha, horas_estimadas: horas })
+    const result = await onResolver({ fecha_objetivo: fechaDestino, horas_estimadas: horas })
     if (!result) {
       setErrorLocal(`Con ${horas}h aún excedes el límite. Prueba un valor menor.`)
     }
@@ -52,7 +71,7 @@ function ConflictoModal({ open, onClose, conflictoData, currentFecha, onResolver
 
   const handleForzar = async () => {
     setErrorLocal(null)
-    await onResolver({ fecha_objetivo: currentFecha, forzar: true })
+    await onResolver({ fecha_objetivo: fechaDestino, forzar: true })
   }
 
   const puedeReducir = puede_reducir !== false && max_horas_permitidas > 0
