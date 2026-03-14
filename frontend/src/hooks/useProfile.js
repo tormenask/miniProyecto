@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { authFetch } from '../utils/auth'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
@@ -15,12 +16,7 @@ async function fetchProfile() {
   if (_cache) return _cache
   if (_promise) return _promise
 
-  const token = localStorage.getItem('access_token')
-  if (!token) return null
-
-  _promise = fetch(`${API_URL}/api/users/profile/`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+  _promise = authFetch(`${API_URL}/api/users/profile/`)
     .then(res => res.ok ? res.json() : null)
     .then(data => {
       _cache = data

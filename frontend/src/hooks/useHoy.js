@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { refreshAccessToken } from '../utils/auth'
+import { authFetch, refreshAccessToken } from '../utils/auth'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
@@ -34,10 +34,7 @@ function useHoy({ curso = '', estado = '' } = {}) {
     setLoading(true)
     setError(false)
     try {
-      const token = localStorage.getItem('access_token')
-      const res = await fetch(buildUrl(), {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      })
+      const res = await authFetch(buildUrl())
       if (!res.ok) throw new Error()
       applyData(await res.json())
     } catch {

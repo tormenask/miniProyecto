@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { authFetch } from "../utils/auth"
 
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
 
@@ -6,28 +7,13 @@ function useSubtareas(actividadId, inicial = []) {
     const [subtareas, setSubtareas] = useState(inicial)
     const [guardando, setGuardando] = useState(false)
 
-    const token = localStorage.getItem("access_token")
-    const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
-
-    const handle401 = (res) => {
-        if (res.status === 401) {
-            localStorage.removeItem('access_token')
-            localStorage.removeItem('refresh_token')
-            localStorage.setItem('session_expired', '1')
-            window.location.href = '/login'
-            return true
-        }
-        return false
-    }
-
     const agregar = async (sub) => {
         if (!actividadId) { setSubtareas((prev) => [...prev, { ...sub, id: Date.now(), estado: 'pendiente' }]); return }
         setGuardando(true)
         try {
-            const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/`, {
-                method: "POST", headers, body: JSON.stringify(sub)
+            const res = await authFetch(`${API_URL}/api/activities/${actividadId}/subtasks/`, {
+                method: "POST", body: JSON.stringify(sub)
             })
-            if (handle401(res)) return
             if (!res.ok) throw new Error("Error al guardar subactividad")
             const nueva = await res.json()
             setSubtareas((prev) => [...prev, nueva])
@@ -39,8 +25,7 @@ function useSubtareas(actividadId, inicial = []) {
     const eliminar = async (subId) => {
         setSubtareas((prev) => prev.filter((s) => s.id !== subId))
         if (!actividadId) return
-        const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${subId}/`, { method: "DELETE", headers })
-        if (res) handle401(res)
+        await authFetch(`${API_URL}/api/activities/${actividadId}/subtasks/${subId}/`, { method: "DELETE" })
     }
 
     // Toggle entre pendiente ↔ hecha
@@ -49,10 +34,9 @@ function useSubtareas(actividadId, inicial = []) {
         const updated = { ...sub, estado: nuevoEstado, nota_posposicion: nuevoEstado === 'pendiente' ? null : sub.nota_posposicion }
         setSubtareas((prev) => prev.map((s) => (s.id === sub.id ? updated : s)))
         if (!actividadId) return
-        const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, {
-            method: "PATCH", headers, body: JSON.stringify({ estado: nuevoEstado })
+        await authFetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, {
+            method: "PATCH", body: JSON.stringify({ estado: nuevoEstado })
         })
-        if (res) handle401(res)
     }
 
     // Marcar como pospuesta con nota opcional
@@ -60,11 +44,10 @@ function useSubtareas(actividadId, inicial = []) {
         const updated = { ...sub, estado: 'pospuesta', nota_posposicion: nota || null }
         setSubtareas((prev) => prev.map((s) => (s.id === sub.id ? updated : s)))
         if (!actividadId) return
-        const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, {
-            method: "PATCH", headers,
+        await authFetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, {
+            method: "PATCH",
             body: JSON.stringify({ estado: 'pospuesta', nota_posposicion: nota || null })
         })
-        if (res) handle401(res)
     }
 
     const editar = async (sub, cambios, forzar = false) => {
@@ -73,10 +56,9 @@ function useSubtareas(actividadId, inicial = []) {
             return { ok: true }
         }
         const body = forzar ? { ...cambios, forzar: true } : cambios
-        const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, {
-            method: "PATCH", headers, body: JSON.stringify(body)
+        const res = await authFetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, {
+            method: "PATCH", body: JSON.stringify(body)
         })
-        if (handle401(res)) return { ok: false, conflicto: false }
         if (res.status === 409) {
             const data = await res.json()
             return { ok: false, conflicto: true, data }
@@ -101,15 +83,15 @@ function useSubtareas(actividadId, inicial = []) {
                 fecha_evento: new Date(`${nuevaFecha}T00:00:00`).toISOString(),
                 fecha_limite: new Date(`${nuevaFecha}T23:59:00`).toISOString(),
             }
-            const resActividad = await fetch(`${API_URL}/api/activities/`, {
-                method: "POST", headers, body: JSON.stringify(nuevaActividad)
+            const resActividad = await authFetch(`${API_URL}/api/activities/`, {
+                method: "POST", body: JSON.stringify(nuevaActividad)
             })
             if (!resActividad.ok) throw new Error("Error al crear nueva actividad")
             const actividadCreada = await resActividad.json()
 
             // 2. Crear la subtarea en la nueva actividad
-            const resSub = await fetch(`${API_URL}/api/activities/${actividadCreada.id}/subtasks/`, {
-                method: "POST", headers,
+            const resSub = await authFetch(`${API_URL}/api/activities/${actividadCreada.id}/subtasks/`, {
+                method: "POST",
                 body: JSON.stringify({
                     nombre: sub.nombre,
                     fecha_objetivo: nuevaFecha,
@@ -119,9 +101,7 @@ function useSubtareas(actividadId, inicial = []) {
             if (!resSub.ok) throw new Error("Error al mover subactividad")
 
             // 3. Eliminar la subtarea de la actividad original
-            await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, {
-                method: "DELETE", headers
-            })
+            await authFetch(`${API_URL}/api/activities/${actividadId}/subtasks/${sub.id}/`, { method: "DELETE" })
             setSubtareas((prev) => prev.filter((s) => s.id !== sub.id))
 
             return true

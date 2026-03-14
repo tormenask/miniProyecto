@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar'
 import Alert from '../components/Alert'
 import Select from '../components/Select'
 import { CURSOS } from '../utils/cursos'
+import { authFetch } from '../utils/auth'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
@@ -53,19 +54,10 @@ function EditarActividad() {
     fecha_evento: '', fecha_limite: '',
   })
 
-  const token   = localStorage.getItem('access_token')
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
-
   useEffect(() => {
     const cargar = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/activities/${id}/`, { headers })
-        if (res.status === 401) {
-          localStorage.removeItem('access_token')
-          localStorage.setItem('session_expired', '1')
-          window.location.href = '/login'
-          return
-        }
+        const res = await authFetch(`${API_URL}/api/activities/${id}/`)
         if (!res.ok) throw new Error('No se pudo cargar la actividad.')
         const data = await res.json()
         setFormData({
@@ -117,8 +109,8 @@ function EditarActividad() {
         fecha_evento: formData.fecha_evento ? new Date(formData.fecha_evento).toISOString() : null,
         fecha_limite: formData.fecha_limite ? new Date(formData.fecha_limite).toISOString() : null,
       }
-      const res = await fetch(`${API_URL}/api/activities/${id}/`, {
-        method: 'PUT', headers, body: JSON.stringify(payload),
+      const res = await authFetch(`${API_URL}/api/activities/${id}/`, {
+        method: 'PUT', body: JSON.stringify(payload),
       })
       if (!res.ok) {
         const errData = await res.json()

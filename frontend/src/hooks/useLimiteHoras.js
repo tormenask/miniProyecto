@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import useProfile, { invalidateProfileCache } from './useProfile'
+import { authFetch } from '../utils/auth'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 const DEFAULT = 6
@@ -24,14 +25,9 @@ function useLimiteHoras() {
 
     const setLimite = async (valor) => {
         setLimiteState(valor)
-        const token = localStorage.getItem('access_token')
         try {
-            await fetch(`${API_URL}/api/users/profile/`, {
+            await authFetch(`${API_URL}/api/users/profile/`, {
                 method: 'PATCH',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify({ limite_horas_diarias: valor }),
             })
             invalidateProfileCache()
