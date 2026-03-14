@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { authFetch } from '../utils/auth'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
@@ -12,23 +13,10 @@ function useReprogramar() {
   const [error, setError] = useState(null)
 
   const patch = async (actividadId, subtareaId, body) => {
-    const token = localStorage.getItem('access_token')
-    if (!token) {
-      window.location.href = '/login'
-      return { ok: false }
-    }
-    const res = await fetch(`${API_URL}/api/activities/${actividadId}/subtasks/${subtareaId}/`, {
-      method: 'PATCH',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-    if (res.status === 401) {
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      localStorage.setItem('session_expired', '1')
-      window.location.href = '/login'
-      return { ok: false }
-    }
+    const res = await authFetch(
+      `${API_URL}/api/activities/${actividadId}/subtasks/${subtareaId}/`,
+      { method: 'PATCH', body: JSON.stringify(body) }
+    )
     if (res.status === 409) {
       const data = await res.json()
       return { ok: false, conflicto: true, data }
@@ -38,7 +26,6 @@ function useReprogramar() {
       try {
         const data = await res.json()
         const fields = data?.error?.fields
-        // Extraer el mensaje de validación específico del campo
         if (fields) mensaje = Object.values(fields).join(' ')
         else if (data?.error?.message) mensaje = data.error.message
       } catch { /* body no es JSON */ }
