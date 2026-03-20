@@ -89,7 +89,7 @@ function FilterBar({ filtroTipo, setFiltroTipo, filtroCurso, setFiltroCurso, tot
   const [open, setOpen] = useState(true)
   const hayFiltros = filtroTipo || filtroCurso
   const cursoLabel = CURSOS_FILTRO.find(c => c.value === filtroCurso)?.label
-  const tipoLabel  = TIPOS.find(t => t.value === filtroTipo)?.label
+  const tipoLabel  = TIPOS_FILTRO.find(t => t.value === filtroTipo)?.label
 
   return (
     <div className="mb-6 space-y-2">
@@ -138,7 +138,7 @@ function FilterBar({ filtroTipo, setFiltroTipo, filtroCurso, setFiltroCurso, tot
         <div className="bg-white border border-[#E1E4E7] rounded-2xl px-4 py-3 flex flex-wrap items-center gap-2 shadow-xs">
           {/* Pills de tipo */}
           <div className="flex flex-wrap gap-2 items-center">
-            {TIPOS.map((t) => (
+            {TIPOS_FILTRO.map((t) => (
               <TipoPill
                 key={t.value}
                 tipo={t}
