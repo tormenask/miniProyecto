@@ -2,19 +2,22 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { LayoutList, Plus, BookOpen, SlidersHorizontal, X, ChevronDown } from 'lucide-react'
 import Navbar from '../components/Navbar'
-import ErrorAlert from '../components/ErrorAlert'
+import Alert from '../components/Alert'
 import Toast from '../components/Toast'
 import ActividadCard from '../components/ActividadCard'
 import useActividades from '../hooks/useActividades'
+import useLimiteHoras from '../hooks/useLimiteHoras'
+import Select from '../components/Select'
 import { CURSOS } from '../utils/cursos'
+import { actividadTieneConflicto } from '../utils/horasUtils'
 
-/* ─── Datos ──────────────────────────────────────────────── */
-const TIPOS = [
-  { value: 'exam',     label: 'Examen',    emoji: '📝' },
-  { value: 'quiz',     label: 'Quiz',      emoji: '⚡' },
-  { value: 'workshop', label: 'Taller',    emoji: '🔧' },
-  { value: 'project',  label: 'Proyecto',  emoji: '🚀' },
-  { value: 'other',    label: 'Otro',      emoji: '📌' },
+const TIPOS_FILTRO = [
+  { value: '', label: 'Todos los tipos' },
+  { value: 'exam', label: 'Examen' },
+  { value: 'quiz', label: 'Quiz' },
+  { value: 'workshop', label: 'Taller' },
+  { value: 'project', label: 'Proyecto' },
+  { value: 'other', label: 'Otro' },
 ]
 
 const CURSOS_FILTRO = [{ value: '', label: 'Todos los cursos' }, ...CURSOS]
@@ -163,6 +166,7 @@ function FilterBar({ filtroTipo, setFiltroTipo, filtroCurso, setFiltroCurso, tot
 /* ─── Vista principal ────────────────────────────────────── */
 function MisActividades() {
   const { actividades, cargando, error } = useActividades()
+  const { limite } = useLimiteHoras()
   const navigate = useNavigate()
   const location = useLocation()
   const [exito, setExito]       = useState(location.state?.exito || null)
@@ -174,6 +178,10 @@ function MisActividades() {
     if (filtroCurso && act.curso !== filtroCurso) return false
     return true
   })
+
+  const totalSubs = actividades.reduce((acc, a) => acc + (a.subactivities?.length || 0), 0)
+  const completadas = actividades.reduce((acc, a) => acc + (a.subactivities?.filter(s => s.estado === 'hecha' || s.completada).length || 0), 0)
+  const pendientes = totalSubs - completadas
 
   return (
     <div className="min-h-screen bg-app-bg">
@@ -194,7 +202,25 @@ function MisActividades() {
           </button>
         </header>
 
-        {/* ── Filtros ── */}
+        {/* Resumen general */}
+        {!cargando && !error && actividades.length > 0 && (
+          <div className="bg-red-50 border border-red-100 rounded-xl p-6 mb-6 grid grid-cols-3 text-center">
+            <div>
+              <p className="text-3xl font-black text-brand">{actividades.length}</p>
+              <p className="text-xs text-gray-500 mt-1">Actividades totales</p>
+            </div>
+            <div>
+              <p className="text-3xl font-black text-green-500">{completadas}</p>
+              <p className="text-xs text-gray-500 mt-1">Subtareas completadas</p>
+            </div>
+            <div>
+              <p className="text-3xl font-black text-gray-400">{pendientes}</p>
+              <p className="text-xs text-gray-500 mt-1">Subtareas pendientes</p>
+            </div>
+          </div>
+        )}
+
+        {/* Filtros */}
         {cargando ? (
           <div className="mb-6 space-y-2">
             {/* Cabecera skeleton */}
@@ -231,7 +257,7 @@ function MisActividades() {
           />
         )}
 
-        {/* ── Contenido ── */}
+        {/* Contenido */}
         {cargando ? (
           <div className="grid gap-4">
             {[0, 1, 2].map((i) => (
@@ -252,7 +278,7 @@ function MisActividades() {
             ))}
           </div>
         ) : error ? (
-          <ErrorAlert mensaje={error} />
+          <Alert mensaje={error} />
         ) : actividades.length === 0 ? (
           <div className="bg-white rounded-xl p-16 text-center shadow-sm border border-[#E1E4E7]">
             <div className="bg-danger-bg w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -281,6 +307,7 @@ function MisActividades() {
               <ActividadCard
                 key={act.id}
                 actividad={act}
+                tieneConflicto={actividadTieneConflicto(act, actividades, limite)}
                 onClick={() => navigate(`/actividad/${act.id}`, { state: { from: '/MisActividades' } })}
               />
             ))}

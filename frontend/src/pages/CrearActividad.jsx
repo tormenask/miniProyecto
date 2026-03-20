@@ -2,25 +2,25 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Save, ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
 import Navbar from '../components/Navbar'
-import ErrorAlert from '../components/ErrorAlert'
+import Alert from '../components/Alert'
 import SubtareaList from '../components/SubtareaList'
 import Select from '../components/Select'
 import useSubtareas from '../hooks/useSubtareas'
+import useActividades from '../hooks/useActividades'
 import { CURSOS } from '../utils/cursos'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
 const TIPOS = [
-  { value: 'exam',     label: 'Examen' },
-  { value: 'quiz',     label: 'Quiz' },
+  { value: 'exam', label: 'Examen' },
+  { value: 'quiz', label: 'Quiz' },
   { value: 'workshop', label: 'Taller' },
-  { value: 'project',  label: 'Proyecto' },
-  { value: 'other',    label: 'Otro' },
+  { value: 'project', label: 'Proyecto' },
+  { value: 'other', label: 'Otro' },
 ]
 
-// Clases base del input — el borde se aplica condicionalmente
 const baseInput = 'w-full px-4 py-2.5 rounded-lg text-sm text-[#1A1A1A] focus:ring-2 focus:ring-brand outline-none transition-all border'
-const inputCls  = (err) => `${baseInput} ${err ? 'border-danger-border' : 'border-[#E1E4E7]'}`
+const inputCls = (err) => `${baseInput} ${err ? 'border-danger-border' : 'border-[#E1E4E7]'}`
 
 function FieldError({ msg }) {
   if (!msg) return null
@@ -34,9 +34,10 @@ function FieldError({ msg }) {
 function CrearActividad() {
   const navigate = useNavigate()
   const [cargando, setCargando] = useState(false)
-  const [error, setError]       = useState(null)
-  const [errores, setErrores]   = useState({})
-  const { subtareas, agregar, eliminar, toggle } = useSubtareas(null)
+  const [error, setError] = useState(null)
+  const [errores, setErrores] = useState({})
+  const { subtareas, agregar, eliminar, toggle, editar } = useSubtareas(null)
+  const { actividades } = useActividades()
 
   const [formData, setFormData] = useState({
     titulo: '', tipo: 'other', curso: '', descripcion: '',
@@ -51,15 +52,14 @@ function CrearActividad() {
 
   const validate = () => {
     const ahora = new Date()
-    const errs  = {}
-    if (!formData.titulo.trim())    errs.titulo       = 'El título es obligatorio.'
-    if (!formData.curso)            errs.curso        = 'Selecciona un curso.'
-    if (!formData.fecha_evento)     errs.fecha_evento = 'La fecha del evento es obligatoria.'
-    else if (new Date(formData.fecha_evento) < ahora)
-                                    errs.fecha_evento = 'La fecha del evento no puede ser en el pasado.'
-    if (!formData.fecha_limite)     errs.fecha_limite = 'La fecha límite es obligatoria.'
-    else if (new Date(formData.fecha_limite) < ahora)
-                                    errs.fecha_limite = 'La fecha límite no puede ser en el pasado.'
+    ahora.setSeconds(0, 0)
+    const errs = {}
+    if (!formData.titulo.trim()) errs.titulo = 'El título es obligatorio.'
+    if (!formData.curso) errs.curso = 'Selecciona un curso.'
+    if (formData.fecha_evento && new Date(formData.fecha_evento) < ahora)
+      errs.fecha_evento = 'La fecha de inicio no puede ser en el pasado.'
+    if (formData.fecha_limite && new Date(formData.fecha_limite) < ahora)
+      errs.fecha_limite = 'La fecha límite no puede ser en el pasado.'
     return errs
   }
 
@@ -122,11 +122,10 @@ function CrearActividad() {
         <form onSubmit={handleSubmit} noValidate className="space-y-6">
           <div className="bg-white rounded-xl shadow-sm border border-[#E1E4E7] p-8">
             <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Nueva Actividad</h1>
-            <p className="text-gray-500 text-sm mb-6">Completa los detalles de tu tarea o examen.</p>
-            <ErrorAlert mensaje={error} />
+            <p className="text-gray-500 text-sm mb-6">Completa los detalles de tu actividad o examen.</p>
+            <Alert mensaje={error} />
 
             <div className="space-y-5 mt-4">
-              {/* Título */}
               <div>
                 <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Título *</label>
                 <input
@@ -137,17 +136,12 @@ function CrearActividad() {
                 <FieldError msg={errores.titulo} />
               </div>
 
-              {/* Curso + Tipo */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Curso / Materia *</label>
                   <Select
-                    name="curso"
-                    value={formData.curso}
-                    onChange={handleChange}
-                    options={CURSOS}
-                    placeholder="Selecciona un curso"
-                    error={!!errores.curso}
+                    name="curso" value={formData.curso} onChange={handleChange}
+                    options={CURSOS} placeholder="Selecciona un curso" error={!!errores.curso}
                   />
                   <FieldError msg={errores.curso} />
                 </div>
@@ -159,7 +153,6 @@ function CrearActividad() {
                 </div>
               </div>
 
-              {/* Descripción */}
               <div>
                 <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">
                   Descripción <span className="font-normal text-gray-400">(Opcional)</span>
@@ -171,10 +164,9 @@ function CrearActividad() {
                 />
               </div>
 
-              {/* Fechas */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha y Hora del Evento *</label>
+                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha y Hora de Inicio <span className="font-normal text-gray-400">(Opcional)</span></label>
                   <input
                     type="datetime-local" name="fecha_evento"
                     value={formData.fecha_evento} onChange={handleChange}
@@ -183,7 +175,7 @@ function CrearActividad() {
                   <FieldError msg={errores.fecha_evento} />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha Límite de Entrega *</label>
+                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha Límite de Entrega <span className="font-normal text-gray-400">(Opcional)</span></label>
                   <input
                     type="datetime-local" name="fecha_limite"
                     value={formData.fecha_limite} onChange={handleChange}
@@ -200,8 +192,11 @@ function CrearActividad() {
             onAgregar={agregar}
             onToggle={toggle}
             onEliminar={eliminar}
+            onEditarSub={editar}
             fechaEvento={formData.fecha_evento}
             fechaLimite={formData.fecha_limite}
+            todasActividades={actividades}
+            actividadId={null}
           />
 
           <button type="submit" disabled={cargando}

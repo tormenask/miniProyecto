@@ -1,39 +1,47 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { refreshAccessToken } from '../utils/auth'
+import { authFetch, refreshAccessToken } from '../utils/auth'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
-function useHoy() {
+function useHoy({ curso = '', estado = '' } = {}) {
   const [vencidas, setVencidas] = useState([])
   const [hoy, setHoy] = useState([])
   const [proximas, setProximas] = useState([])
+  const [summary, setSummary] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const wsRef = useRef(null)
 
   const applyData = (data) => {
-    setVencidas(data.vencidas || [])
-    setHoy(data.hoy || [])
-    setProximas(data.proximas || [])
+    // Backend now returns overdue/today/upcoming (subtareas) — map to old names
+    setVencidas(data.overdue || data.vencidas || [])
+    setHoy(data.today || data.hoy || [])
+    setProximas(data.upcoming || data.proximas || [])
+    setSummary(data.summary || null)
     setLoading(false)
     setError(false)
   }
+
+  const buildUrl = useCallback(() => {
+    const params = new URLSearchParams()
+    if (curso) params.set('curso', curso)
+    if (estado) params.set('estado', estado)
+    const qs = params.toString()
+    return `${API_URL}/api/activities/today/${qs ? '?' + qs : ''}`
+  }, [curso, estado])
 
   const fetchRest = useCallback(async () => {
     setLoading(true)
     setError(false)
     try {
-      const token = localStorage.getItem('access_token')
-      const res = await fetch(`${API_URL}/api/activities/today/`, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      })
+      const res = await authFetch(buildUrl())
       if (!res.ok) throw new Error()
       applyData(await res.json())
     } catch {
       setError(true)
       setLoading(false)
     }
-  }, [])
+  }, [buildUrl])
 
   const connectWs = useCallback(() => {
     const token = localStorage.getItem('access_token')
@@ -43,20 +51,17 @@ function useHoy() {
     const ws = new WebSocket(`${wsBase}/ws/activities/today/?token=${token}`)
     wsRef.current = ws
 
-    ws.onmessage = (event) => {
-      try {
-        applyData(JSON.parse(event.data))
-      } catch { /* ignore malformed frames */ }
+    ws.onmessage = () => {
+      // WebSocket pushes unfiltered data; re-fetch REST with current filters
+      fetchRest()
     }
 
     ws.onerror = () => {
-      // WebSocket no disponible, usar REST como fallback
       fetchRest()
     }
 
     ws.onclose = async (event) => {
       if (event.code === 4001) {
-        // Token inválido o expirado — intentar renovar y reconectar
         try {
           await refreshAccessToken()
           connectWs()
@@ -69,20 +74,19 @@ function useHoy() {
   }, [fetchRest])
 
   useEffect(() => {
+    fetchRest()
+  }, [fetchRest])
+
+  useEffect(() => {
     connectWs()
     return () => {
       if (wsRef.current) wsRef.current.close()
     }
   }, [connectWs])
 
-  const fetchTasks = () => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      // El WS mantiene datos al día; para refresh manual, usar REST
-    }
-    fetchRest()
-  }
+  const fetchTasks = () => fetchRest()
 
-  return { vencidas, hoy, proximas, loading, error, fetchTasks }
+  return { vencidas, hoy, proximas, summary, loading, error, fetchTasks }
 }
 
 export default useHoy

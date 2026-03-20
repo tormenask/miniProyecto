@@ -13,6 +13,8 @@ import Register from './pages/Register'
 import MisActividades from './pages/MisActividades'
 import DetalleActividad from './pages/Detalleactividad'
 import EditarActividad from './pages/Editaractividad'
+import HoyActividad from './pages/HoyActividad'
+import Perfil from './pages/Perfil'
 
 // Renueva el access token cada 14 minutos mientras haya sesión activa.
 // Si el refresh falla (token expirado por inactividad), redirige al login.
@@ -47,7 +49,8 @@ function App() {
         <Route path="/MisActividades" element={<PrivateRoute><MisActividades /></PrivateRoute>} />
         <Route path="/actividad/:id" element={<PrivateRoute><DetalleActividad /></PrivateRoute>} />
         <Route path="/actividad/:id/editar" element={<PrivateRoute><EditarActividad /></PrivateRoute>} />
-
+        <Route path="/hoy/actividad/:id" element={<PrivateRoute><HoyActividad /></PrivateRoute>} />
+        <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
         {/* Rutas de autenticación */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

@@ -27,11 +27,13 @@ export default function Login() {
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value })
     if (error) setError('')
+    if (sessionMsg) setSessionMsg('')
   }
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
+    setSessionMsg('')
     // UX #5 Prevención de errores: validación local antes de enviar
     if (!form.username.trim()) { setError('Por favor ingresa tu nombre de usuario.'); return }
     if (!form.password) { setError('Por favor ingresa tu contraseña.'); return }

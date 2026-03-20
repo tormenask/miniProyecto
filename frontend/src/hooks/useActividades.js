@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { authFetch } from "../utils/auth"
 
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
 
@@ -10,19 +11,8 @@ function useActividades() {
     useEffect(() => {
         const obtener = async () => {
             try {
-                const token = localStorage.getItem("access_token")
-                if (!token) { setError("No hay sesión activa. Inicia sesión."); return }
-
-                const res = await fetch(`${API_URL}/api/activities/`, {
-                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
-                })
-
-                if (res.status === 401) {
-                    localStorage.removeItem("access_token")
-                    throw new Error("Sesión expirada. Inicia sesión de nuevo.")
-                }
+                const res = await authFetch(`${API_URL}/api/activities/`)
                 if (!res.ok) throw new Error("Error al conectar con el servidor.")
-
                 const data = await res.json()
                 setActividades(data.sort((a, b) => new Date(b.fecha_creacion) - new Date(a.fecha_creacion)))
             } catch (err) {

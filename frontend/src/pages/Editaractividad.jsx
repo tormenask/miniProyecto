@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { Save, ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
 import Navbar from '../components/Navbar'
-import ErrorAlert from '../components/ErrorAlert'
+import Alert from '../components/Alert'
 import Select from '../components/Select'
 import { CURSOS } from '../utils/cursos'
+import { authFetch } from '../utils/auth'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
@@ -53,14 +54,10 @@ function EditarActividad() {
     fecha_evento: '', fecha_limite: '',
   })
 
-  const token   = localStorage.getItem('access_token')
-  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
-
   useEffect(() => {
     const cargar = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/activities/${id}/`, { headers })
-        if (res.status === 401) { localStorage.removeItem('access_token'); throw new Error('Sesión expirada. Inicia sesión de nuevo.') }
+        const res = await authFetch(`${API_URL}/api/activities/${id}/`)
         if (!res.ok) throw new Error('No se pudo cargar la actividad.')
         const data = await res.json()
         setFormData({
@@ -88,15 +85,14 @@ function EditarActividad() {
 
   const validate = () => {
     const ahora = new Date()
-    const errs  = {}
-    if (!formData.titulo.trim())    errs.titulo       = 'El título es obligatorio.'
-    if (!formData.curso)            errs.curso        = 'Selecciona un curso.'
-    if (!formData.fecha_evento)     errs.fecha_evento = 'La fecha del evento es obligatoria.'
-    else if (new Date(formData.fecha_evento) < ahora)
-                                    errs.fecha_evento = 'La fecha del evento no puede ser en el pasado.'
-    if (!formData.fecha_limite)     errs.fecha_limite = 'La fecha límite es obligatoria.'
-    else if (new Date(formData.fecha_limite) < ahora)
-                                    errs.fecha_limite = 'La fecha límite no puede ser en el pasado.'
+    ahora.setSeconds(0, 0)
+    const errs = {}
+    if (!formData.titulo.trim()) errs.titulo = 'El título es obligatorio.'
+    if (!formData.curso)         errs.curso  = 'Selecciona un curso.'
+    if (formData.fecha_evento && new Date(formData.fecha_evento) < ahora)
+      errs.fecha_evento = 'La fecha de inicio no puede ser en el pasado.'
+    if (formData.fecha_limite && new Date(formData.fecha_limite) < ahora)
+      errs.fecha_limite = 'La fecha límite no puede ser en el pasado.'
     return errs
   }
 
@@ -113,8 +109,8 @@ function EditarActividad() {
         fecha_evento: formData.fecha_evento ? new Date(formData.fecha_evento).toISOString() : null,
         fecha_limite: formData.fecha_limite ? new Date(formData.fecha_limite).toISOString() : null,
       }
-      const res = await fetch(`${API_URL}/api/activities/${id}/`, {
-        method: 'PUT', headers, body: JSON.stringify(payload),
+      const res = await authFetch(`${API_URL}/api/activities/${id}/`, {
+        method: 'PUT', body: JSON.stringify(payload),
       })
       if (!res.ok) {
         const errData = await res.json()
@@ -173,7 +169,7 @@ function EditarActividad() {
           <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Editar Actividad</h1>
           <p className="text-gray-400 text-sm mb-6">Modifica los campos que necesites y guarda los cambios.</p>
 
-          <ErrorAlert mensaje={error} />
+          <Alert mensaje={error} />
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5 mt-4">
             {/* Título */}
@@ -222,7 +218,7 @@ function EditarActividad() {
             {/* Fechas */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha y Hora del Evento *</label>
+                <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha y Hora de Inicio <span className="font-normal text-gray-400">(Opcional)</span></label>
                 <input
                   type="datetime-local" name="fecha_evento"
                   value={formData.fecha_evento} onChange={handleChange}
@@ -231,7 +227,7 @@ function EditarActividad() {
                 <FieldError msg={errores.fecha_evento} />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha Límite *</label>
+                <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha Límite <span className="font-normal text-gray-400">(Opcional)</span></label>
                 <input
                   type="datetime-local" name="fecha_limite"
                   value={formData.fecha_limite} onChange={handleChange}
