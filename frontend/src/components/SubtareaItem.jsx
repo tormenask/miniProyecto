@@ -24,16 +24,31 @@ function SubtareaItem({ sub, onToggle, onEliminar, onEditar, onPosponer }) {
   }
 
   return (
-    <div className={`flex items-start gap-4 p-4 rounded-xl border transition-all
+    <div className={`flex items-start gap-4 p-4 rounded-xl border transition-all group
       ${esHecha ? 'bg-success-bg border-success-border'
         : esPospuesta ? 'bg-orange-50 border-orange-200'
         : 'bg-white border-[#E1E4E7] hover:border-gray-300'}`}>
 
-      <button type="button" onClick={() => onToggle(sub)}
-        className={`shrink-0 mt-0.5 transition-colors ${esHecha ? 'text-success-text' : 'text-gray-300 hover:text-brand'}`}
-        aria-label={esHecha ? 'Marcar como pendiente' : 'Marcar como hecha'}>
-        {esHecha ? <CheckCircle2 size={22} /> : <Circle size={22} />}
-      </button>
+      <div className="shrink-0 mt-0.5 flex flex-col items-center gap-0.5">
+        <button type="button" onClick={() => onToggle(sub)}
+          className={`transition-all hover:scale-110 group/check
+            ${esHecha ? 'text-success-text' : 'text-gray-400 hover:text-brand'}`}
+          title={esHecha ? 'Marcar como pendiente' : 'Marcar como hecha'}
+          aria-label={esHecha ? 'Marcar como pendiente' : 'Marcar como hecha'}>
+          {esHecha
+            ? <CheckCircle2 size={22} />
+            : <>
+                <Circle size={22} className="block group-hover/check:hidden" />
+                <CheckCircle2 size={22} className="hidden group-hover/check:block" />
+              </>
+          }
+        </button>
+        {!esHecha && !esPospuesta && (
+          <span className="text-[9px] font-semibold text-brand opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap leading-none">
+            Completar
+          </span>
+        )}
+      </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">

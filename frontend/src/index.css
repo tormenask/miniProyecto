@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  /* Anillo de foco visible para navegación por teclado en todos los elementos interactivos */
+  :focus-visible {
+    outline: 2px solid #CD1F32;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
