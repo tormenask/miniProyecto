@@ -222,10 +222,10 @@ function SubtareaList({
         <div>
           <div className="flex justify-between text-xs text-gray-400 mb-1">
             <span>Progreso</span>
-            <span className="font-bold text-success-text">{progreso}%</span>
+            <span className="font-bold text-green-600">{progreso}%</span>
           </div>
           <div className="w-full bg-gray-100 rounded-full h-2">
-            <div className="bg-success-text h-2 rounded-full transition-all duration-500"
+            <div className="bg-green-500 h-2 rounded-full transition-all duration-500"
               style={{ width: `${progreso}%` }} />
           </div>
         </div>
