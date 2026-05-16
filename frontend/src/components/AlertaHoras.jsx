@@ -4,7 +4,7 @@ function AlertaHoras({ conflictos, limite, onMoverDia, onReducirHoras, onCerrar 
     if (!conflictos || conflictos.length === 0) return null
 
     return (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 space-y-3">
+        <div role="alert" aria-live="polite" className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 space-y-3">
             <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2">
                     <AlertTriangle size={18} className="text-yellow-500 shrink-0" />
@@ -28,13 +28,13 @@ function AlertaHoras({ conflictos, limite, onMoverDia, onReducirHoras, onCerrar 
                         {' '}— {horas}h planeadas (límite: {limite}h)
                     </p>
                     <div className="flex gap-2">
-                        <button onClick={() => onMoverDia(fecha)}
+                        <button type="button" onClick={() => onMoverDia(fecha)}
                             className="flex-1 text-xs font-bold px-3 py-1.5 rounded-lg border border-yellow-300 text-yellow-700 hover:bg-yellow-50 transition-colors">
-                            📅 Mover subactividad de día
+                            <span aria-hidden="true">📅 </span>Mover subactividad de día
                         </button>
-                        <button onClick={() => onReducirHoras(fecha)}
+                        <button type="button" onClick={() => onReducirHoras(fecha)}
                             className="flex-1 text-xs font-bold px-3 py-1.5 rounded-lg border border-yellow-300 text-yellow-700 hover:bg-yellow-50 transition-colors">
-                            ⏱ Reducir horas estimadas
+                            <span aria-hidden="true">⏱ </span>Reducir horas estimadas
                         </button>
                     </div>
                 </div>

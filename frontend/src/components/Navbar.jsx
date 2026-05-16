@@ -35,47 +35,52 @@ function Navbar() {
   }
 
   const navLinks = [
-    { path: '/hoy', label: 'Hoy', icon: <Sun size={15} /> },
-    { path: '/MisActividades', label: 'Actividades', icon: <LayoutList size={15} /> },
-    { path: '/CrearActividad', label: 'Crear', icon: <Plus size={15} /> },
+    { path: '/hoy', label: 'Hoy', icon: <Sun size={18} /> },
+    { path: '/MisActividades', label: 'Actividades', icon: <LayoutList size={18} /> },
+    { path: '/CrearActividad', label: 'Crear', icon: <Plus size={18} /> },
   ]
 
   return (
     <>
-      <nav className="bg-brand px-8 py-3 flex items-center justify-between shadow-sm">
-        <div
-          className="font-bold text-base flex items-center gap-2 text-white cursor-pointer select-none"
+      <nav aria-label="Navegación principal" className="bg-brand px-8 py-3 flex items-center justify-between shadow-sm">
+        <button
+          type="button"
           onClick={() => navigate('/MisActividades')}
+          className="font-bold text-base flex items-center gap-2 text-white select-none"
+          aria-label="Gestión de Actividades — ir al inicio"
         >
-          <CalendarClock size={20} />
+          <CalendarClock size={20} aria-hidden="true" />
           Gestión de Actividades
-        </div>
+        </button>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           {navLinks.map(({ path, label, icon }) => (
             <button
               key={path}
               type="button"
               onClick={() => navigate(path)}
-              className={`flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors
+              className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg transition-all
                 ${location.pathname === path
-                  ? 'bg-white/25 text-white'
-                  : 'text-white/75 hover:text-white hover:bg-white/15'
+                  ? 'bg-white text-brand shadow-sm'
+                  : 'text-white/90 hover:text-white hover:bg-white/20'
                 }`}
             >
               {icon} {label}
             </button>
           ))}
 
-          <div className="w-px h-5 bg-white/20 mx-2" />
+          <div className="w-px h-5 bg-white/30 mx-2" aria-hidden="true" />
 
           {/* Dropdown de usuario */}
           <div className="relative" ref={dropdownRef}>
             <button
               type="button"
               onClick={() => setDropdownAbierto(prev => !prev)}
-              className={`flex items-center gap-2 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors
-                ${dropdownAbierto ? 'bg-white/25 text-white' : 'text-white/75 hover:text-white hover:bg-white/15'}`}
+              aria-haspopup="menu"
+              aria-expanded={dropdownAbierto}
+              aria-label={`Menú de usuario: ${nombreMostrado}`}
+              className={`flex items-center gap-2 text-sm font-semibold px-3 py-2 rounded-lg transition-colors
+                ${dropdownAbierto ? 'bg-white/25 text-white' : 'text-white/90 hover:text-white hover:bg-white/20'}`}
             >
               <UserCircle size={17} />
               <span className="max-w-[120px] truncate">{nombreMostrado}</span>
@@ -83,21 +88,23 @@ function Navbar() {
             </button>
 
             {dropdownAbierto && (
-              <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-xl shadow-lg border border-[#E1E4E7] py-1 z-50">
+              <div role="menu" aria-label="Menú de usuario" className="absolute right-0 top-full mt-2 w-44 bg-white rounded-xl shadow-lg border border-[#E1E4E7] py-1 z-50">
                 <button
                   type="button"
+                  role="menuitem"
                   onClick={() => { setDropdownAbierto(false); navigate('/perfil') }}
                   className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#1A1A1A] hover:bg-gray-50 transition-colors font-medium"
                 >
-                  <User size={15} className="text-gray-400" /> Ir a perfil
+                  <User size={15} className="text-gray-400" aria-hidden="true" /> Ir a perfil
                 </button>
-                <div className="h-px bg-[#E1E4E7] mx-3 my-1" />
+                <div className="h-px bg-[#E1E4E7] mx-3 my-1" aria-hidden="true" />
                 <button
                   type="button"
+                  role="menuitem"
                   onClick={() => { setDropdownAbierto(false); setModalLogout(true) }}
                   className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-danger-text hover:bg-red-50 transition-colors font-medium"
                 >
-                  <LogOut size={15} /> Cerrar sesión
+                  <LogOut size={15} aria-hidden="true" /> Cerrar sesión
                 </button>
               </div>
             )}

@@ -22,11 +22,11 @@ const TIPOS = [
 const baseInput = 'w-full px-4 py-2.5 rounded-lg text-sm text-[#1A1A1A] focus:ring-2 focus:ring-brand outline-none transition-all border'
 const inputCls = (err) => `${baseInput} ${err ? 'border-danger-border' : 'border-[#E1E4E7]'}`
 
-function FieldError({ msg }) {
+function FieldError({ id, msg }) {
   if (!msg) return null
   return (
-    <p className="flex items-center gap-1.5 text-xs text-danger-text mt-1.5 font-medium">
-      <AlertCircle size={12} className="shrink-0" /> {msg}
+    <p id={id} role="alert" className="flex items-center gap-1.5 text-xs text-danger-text mt-1.5 font-medium">
+      <AlertCircle size={12} className="shrink-0" aria-hidden="true" /> {msg}
     </p>
   )
 }
@@ -127,37 +127,42 @@ function CrearActividad() {
 
             <div className="space-y-5 mt-4">
               <div>
-                <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Título *</label>
+                <label htmlFor="crear-titulo" className="block text-sm font-semibold text-[#1A1A1A] mb-1">Título *</label>
                 <input
+                  id="crear-titulo"
                   type="text" name="titulo" value={formData.titulo} onChange={handleChange}
                   placeholder="Ej: Examen Final de Cálculo"
                   className={inputCls(errores.titulo)}
+                  aria-describedby={errores.titulo ? 'crear-titulo-err' : undefined}
+                  aria-invalid={!!errores.titulo}
                 />
-                <FieldError msg={errores.titulo} />
+                <FieldError id="crear-titulo-err" msg={errores.titulo} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Curso / Materia *</label>
+                  <label htmlFor="crear-curso" className="block text-sm font-semibold text-[#1A1A1A] mb-1">Curso / Materia *</label>
                   <Select
+                    id="crear-curso"
                     name="curso" value={formData.curso} onChange={handleChange}
                     options={CURSOS} placeholder="Selecciona un curso" error={!!errores.curso}
                   />
-                  <FieldError msg={errores.curso} />
+                  <FieldError id="crear-curso-err" msg={errores.curso} />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">
+                  <label htmlFor="crear-tipo" className="block text-sm font-semibold text-[#1A1A1A] mb-1">
                     Tipo <span className="font-normal text-gray-400">(Opcional)</span>
                   </label>
-                  <Select name="tipo" value={formData.tipo} onChange={handleChange} options={TIPOS} />
+                  <Select id="crear-tipo" name="tipo" value={formData.tipo} onChange={handleChange} options={TIPOS} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">
+                <label htmlFor="crear-descripcion" className="block text-sm font-semibold text-[#1A1A1A] mb-1">
                   Descripción <span className="font-normal text-gray-400">(Opcional)</span>
                 </label>
                 <textarea
+                  id="crear-descripcion"
                   name="descripcion" rows="3" value={formData.descripcion} onChange={handleChange}
                   placeholder="Detalles adicionales..."
                   className={`${inputCls(false)} resize-none`}
@@ -166,22 +171,28 @@ function CrearActividad() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha y Hora de Inicio <span className="font-normal text-gray-400">(Opcional)</span></label>
+                  <label htmlFor="crear-fecha-evento" className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha y Hora de Inicio <span className="font-normal text-gray-400">(Opcional)</span></label>
                   <input
+                    id="crear-fecha-evento"
                     type="datetime-local" name="fecha_evento"
                     value={formData.fecha_evento} onChange={handleChange}
                     className={inputCls(errores.fecha_evento)}
+                    aria-describedby={errores.fecha_evento ? 'crear-fecha-evento-err' : undefined}
+                    aria-invalid={!!errores.fecha_evento}
                   />
-                  <FieldError msg={errores.fecha_evento} />
+                  <FieldError id="crear-fecha-evento-err" msg={errores.fecha_evento} />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha Límite de Entrega <span className="font-normal text-gray-400">(Opcional)</span></label>
+                  <label htmlFor="crear-fecha-limite" className="block text-sm font-semibold text-[#1A1A1A] mb-1">Fecha Límite de Entrega <span className="font-normal text-gray-400">(Opcional)</span></label>
                   <input
+                    id="crear-fecha-limite"
                     type="datetime-local" name="fecha_limite"
                     value={formData.fecha_limite} onChange={handleChange}
                     className={inputCls(errores.fecha_limite)}
+                    aria-describedby={errores.fecha_limite ? 'crear-fecha-limite-err' : undefined}
+                    aria-invalid={!!errores.fecha_limite}
                   />
-                  <FieldError msg={errores.fecha_limite} />
+                  <FieldError id="crear-fecha-limite-err" msg={errores.fecha_limite} />
                 </div>
               </div>
             </div>

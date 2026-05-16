@@ -87,8 +87,9 @@ function SubtareaForm({ onAgregar, onCancelar, guardando = false, fechaEvento, f
       <Alert mensaje={error} type="danger" />
 
       <div>
-        <label className="text-xs text-gray-500 font-semibold block mb-1">Nombre *</label>
+        <label htmlFor="sf-nombre" className="text-xs text-gray-500 font-semibold block mb-1">Nombre *</label>
         <input
+          id="sf-nombre"
           ref={nombreRef} type="text" name="nombre"
           placeholder="Ej: Estudiar capítulo 3"
           value={form.nombre} onChange={handleChange} className={inputCls}
@@ -97,8 +98,9 @@ function SubtareaForm({ onAgregar, onCancelar, guardando = false, fechaEvento, f
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-xs text-gray-500 font-semibold block mb-1">Fecha objetivo *</label>
+          <label htmlFor="sf-fecha" className="text-xs text-gray-500 font-semibold block mb-1">Fecha objetivo *</label>
           <input
+            id="sf-fecha"
             ref={fechaRef} type="date" name="fecha_objetivo"
             value={form.fecha_objetivo} onChange={handleChange}
             min={fechaMinStr ?? undefined}
@@ -112,8 +114,9 @@ function SubtareaForm({ onAgregar, onCancelar, guardando = false, fechaEvento, f
           )}
         </div>
         <div>
-          <label className="text-xs text-gray-500 font-semibold block mb-1">Horas estimadas *</label>
+          <label htmlFor="sf-horas" className="text-xs text-gray-500 font-semibold block mb-1">Horas estimadas *</label>
           <input
+            id="sf-horas"
             ref={horasRef} type="number" name="horas_estimadas"
             min="0.5" step="0.5" placeholder="Ej: 1.5"
             value={form.horas_estimadas} onChange={handleChange} className={inputCls}

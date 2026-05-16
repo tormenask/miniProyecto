@@ -1,167 +1,229 @@
-# 🖥️ miniProyecto — Frontend
+# miniProyecto — Frontend
 
 Frontend del Proyecto Integrador I, construido con **React**, **Vite** y **TailwindCSS**.
 
-## 📋 Descripción
+## Descripción
 
-Aplicación web que consume la API REST del backend para gestionar actividades académicas (tareas, exámenes, talleres, proyectos). Incluye autenticación JWT con rotación de tokens, vista del día con WebSocket en tiempo real, gestión completa de actividades y subactividades, detección de conflictos de horas, perfil de usuario editable y cambio de contraseña.
+Aplicación web para gestionar actividades académicas (tareas, exámenes, talleres, proyectos) y sus subactividades. Incluye autenticación JWT con renovación automática, vista del día con WebSocket en tiempo real, detección y resolución de conflictos de horas, perfil de usuario y dashboard de progreso.
 
-## 🗺️ Rutas
+---
+
+## Rutas
 
 | Ruta | Página | Acceso |
 |------|--------|--------|
 | `/login` | Login | Pública |
 | `/register` | Register | Pública |
-| `/hoy` | Hoy | Privada |
+| `/hoy` | Vista Hoy | Privada |
 | `/home` | Home | Privada |
-| `/MisActividades` | MisActividades | Privada |
-| `/CrearActividad` | CrearActividad | Privada |
-| `/actividad/:id` | DetalleActividad | Privada |
-| `/actividad/:id/editar` | EditarActividad | Privada |
-| `/hoy/actividad/:id` | HoyActividad | Pública (token por URL) |
+| `/MisActividades` | Mis Actividades | Privada |
+| `/CrearActividad` | Crear Actividad | Privada |
+| `/actividad/:id` | Detalle de Actividad | Privada |
+| `/actividad/:id/editar` | Editar Actividad | Privada |
+| `/hoy/actividad/:id` | Detalle desde Vista Hoy | Privada |
 | `/perfil` | Perfil | Privada |
 | `/progreso` | Progreso | Privada |
 
-## 🛠️ Tecnologías
+---
 
-- [React 18](https://react.dev/) — Biblioteca de UI
-- [Vite 5](https://vitejs.dev/) — Build tool y servidor de desarrollo
-- [TailwindCSS 3](https://tailwindcss.com/) — Framework de estilos utilitarios
-- [React Router 7](https://reactrouter.com/) — Enrutamiento SPA
-- [Axios](https://axios-http.com/) — Cliente HTTP
-- [Lucide React](https://lucide.dev/) — Iconos
+## Tecnologías
 
-## 📁 Estructura del Proyecto
+- [React 18](https://react.dev/)
+- [Vite 5](https://vitejs.dev/)
+- [TailwindCSS 3](https://tailwindcss.com/)
+- [React Router 7](https://reactrouter.com/)
+- [Lucide React](https://lucide.dev/) — iconos
+
+---
+
+## Estructura del proyecto
 
 ```
-frontend/
-├── public/
-└── src/
-    ├── components/
-    │   ├── hoy/                      # Componentes exclusivos de Vista Hoy
-    │   │   ├── TodayView.jsx         # Contenedor principal de la vista
-    │   │   ├── TaskCard.jsx          # Tarjeta de actividad en la vista Hoy
-    │   │   ├── Section.jsx           # Sección (Vencidas / Hoy / Próximas)
-    │   │   ├── SortRules.jsx         # Selector de ordenamiento
-    │   │   ├── TaskSkeleton.jsx      # Skeleton loader de tarjeta
-    │   │   ├── ModalReorganizar.jsx  # Modal para mover subactividades de día
-    │   │   └── EmptyTasks.jsx        # Estado vacío
-    │   ├── ActividadCard.jsx         # Tarjeta de actividad en MisActividades
-    │   ├── Alert.jsx                 # Alerta inline (danger / warning / success)
-    │   ├── AlertaHoras.jsx           # Alerta de conflicto de horas diarias
-    │   ├── ConfigLimiteHoras.jsx     # Input para configurar límite de horas/día
-    │   ├── ErrorAlert.jsx            # Alerta de error de página
-    │   ├── Modal.jsx                 # Modal reutilizable
-    │   ├── Navbar.jsx                # Barra de navegación con dropdown de usuario
-    │   ├── PrivateRoute.jsx          # Protección de rutas autenticadas
-    │   ├── Select.jsx                # Dropdown personalizado
-    │   ├── SubtareaForm.jsx          # Formulario para agregar subactividad
-    │   ├── SubtareaItem.jsx          # Item individual de subactividad (toggle/editar/eliminar)
-    │   ├── SubtareaList.jsx          # Lista y gestión de subactividades con resolución de conflictos
-    │   └── Toast.jsx                 # Notificación temporal de éxito/error
-    ├── hooks/
-    │   ├── useActividad.js           # Carga de una actividad por ID
-    │   ├── useActividades.js         # Carga de actividades del usuario
-    │   ├── useHoy.js                 # Datos de hoy vía REST + WebSocket
-    │   ├── useLimiteHoras.js         # Límite de horas diarias (GET/PATCH perfil)
-    │   └── useSubtareas.js           # CRUD de subactividades con manejo de conflictos 409
-    ├── pages/
-    │   ├── Login.jsx                 # Inicio de sesión
-    │   ├── Register.jsx              # Registro de usuario
-    │   ├── Home.jsx                  # Página de inicio
-    │   ├── Hoy.jsx                   # Vista del día
-    │   ├── HoyActividad.jsx          # Detalle de actividad desde Vista Hoy
-    │   ├── MisActividades.jsx        # Lista con filtros por tipo y curso
-    │   ├── CrearActividad.jsx        # Crear actividad con subactividades
-    │   ├── Detalleactividad.jsx      # Detalle + gestión de subactividades
-    │   ├── Editaractividad.jsx       # Editar actividad existente
-    │   ├── Perfil.jsx                # Perfil de usuario (datos, preferencias, contraseña)
-    │   └── Progreso.jsx              # Dashboard de progreso
-    ├── utils/
-    │   ├── auth.js                   # refreshAccessToken() + authFetch()
-    │   ├── cursos.js                 # Constantes de cursos (CURSOS, CURSO_LABEL)
-    │   └── horasUtils.js             # Detección de conflictos y sugerencias de días
-    ├── App.jsx                       # Router, rutas y renovación proactiva de token
-    ├── index.css                     # Estilos globales (Tailwind + design tokens)
-    └── main.jsx                      # Punto de entrada
+frontend/src/
+├── components/
+│   ├── hoy/
+│   │   ├── SubtareaHoyCard.jsx   # Tarjeta de subtarea en Vista Hoy (toggle, posponer, reprogramar)
+│   │   ├── Section.jsx           # Sección Vencidas / Hoy / Próximas
+│   │   ├── ResumenHoras.jsx      # Resumen de horas planificadas del día
+│   │   ├── ModalReorganizar.jsx  # Modal para redistribuir subtareas con exceso de horas
+│   │   ├── TaskCard.jsx          # Tarjeta de actividad (uso interno)
+│   │   ├── SortRules.jsx         # Selector de ordenamiento
+│   │   ├── TaskSkeleton.jsx      # Skeleton loader
+│   │   ├── EmptyTasks.jsx        # Estado vacío
+│   │   └── ErrorState.jsx        # Estado de error
+│   ├── ActividadCard.jsx         # Tarjeta de actividad en MisActividades
+│   ├── Alert.jsx                 # Alerta inline (danger / warning / success)
+│   ├── AlertaHoras.jsx           # Aviso de conflicto de horas diarias
+│   ├── ConflictoModal.jsx        # Modal de resolución de conflicto 409 (mover / reducir / forzar)
+│   ├── Modal.jsx                 # Modal reutilizable
+│   ├── Navbar.jsx                # Barra de navegación con menú de usuario
+│   ├── PrivateRoute.jsx          # Protección de rutas (valida expiración JWT)
+│   ├── Select.jsx                # Dropdown personalizado accesible
+│   ├── SubtareaForm.jsx          # Formulario para agregar subactividad
+│   ├── SubtareaItem.jsx          # Item de subactividad con estado enum (pendiente/hecha/pospuesta)
+│   ├── SubtareaList.jsx          # Lista de subactividades con acciones
+│   └── Toast.jsx                 # Notificación temporal
+├── hooks/
+│   ├── useActividad.js           # Carga una actividad por ID
+│   ├── useActividades.js         # Lista de actividades del usuario
+│   ├── useHoy.js                 # Datos de Vista Hoy (REST + WebSocket) con filtros de curso/estado
+│   ├── useLimiteHoras.js         # Límite de horas diarias desde el perfil
+│   ├── useProfile.js             # Perfil del usuario con caché singleton
+│   ├── useReorganizar.js         # Lógica para detectar y reorganizar subtareas con exceso
+│   ├── useReprogramar.js         # PATCH de fecha_objetivo con manejo de conflicto 409
+│   └── useSubtareas.js           # CRUD de subactividades
+├── pages/
+│   ├── Login.jsx                 # Inicio de sesión
+│   ├── Register.jsx              # Registro
+│   ├── Home.jsx                  # Página de inicio
+│   ├── Hoy.jsx                   # Vista del día con filtros y reorganización
+│   ├── HoyActividad.jsx          # Detalle de actividad desde Vista Hoy
+│   ├── MisActividades.jsx        # Lista de actividades con filtros
+│   ├── CrearActividad.jsx        # Crear actividad con subactividades
+│   ├── Detalleactividad.jsx      # Detalle y gestión de subactividades
+│   ├── Editaractividad.jsx       # Editar actividad existente
+│   ├── Perfil.jsx                # Perfil de usuario y cambio de contraseña
+│   └── Progreso.jsx              # Dashboard de progreso
+├── utils/
+│   ├── auth.js                   # authFetch, refreshAccessToken, isTokenExpired
+│   ├── cursos.js                 # Constantes de cursos (CURSOS, CURSO_LABEL)
+│   ├── formatDate.js             # Formateador de fechas de sugerencias
+│   └── horasUtils.js             # Detección de conflictos de horas y sugerencias de días
+├── App.jsx                       # Router, rutas y renovación proactiva de token (cada 14 min)
+├── index.css                     # Estilos globales (Tailwind + design tokens)
+└── main.jsx                      # Punto de entrada
 ```
 
-## 🔐 Autenticación
+---
 
-- JWT con **rotación de refresh token**: cada vez que se renueva el access token, el nuevo refresh token también se guarda.
-- `authFetch()` en `utils/auth.js` reintenta automáticamente con token renovado ante un 401.
-- Renovación proactiva cada **14 minutos** desde `App.jsx`.
-- Si el token expira, el usuario es redirigido a `/login` con aviso de sesión expirada.
-- `PrivateRoute` protege todas las rutas que requieren sesión activa.
+## Autenticación y sesión
 
-## 🔀 Gestión de Subactividades (US-06/07/08)
+El módulo central es `utils/auth.js`. Todas las peticiones autenticadas pasan por `authFetch()`.
 
-Al editar la fecha u horas de una subactividad, el backend puede responder `409 Conflict` si se supera el límite de horas diarias configurado. El flujo en el frontend es:
+### Flujo de renovación
 
-1. Se muestra el conflicto con las horas planificadas vs. el límite.
-2. El usuario puede **mover la subactividad** a un día sugerido con horas disponibles.
-3. O puede **guardar de todas formas** ignorando el límite (`forzar: true`).
+1. `authFetch(url, options)` agrega el header `Authorization: Bearer <token>` automáticamente.
+2. Si el servidor responde `401`, intenta renovar el token con `refreshAccessToken()`.
+3. Si la renovación tiene éxito, reintenta la petición original con el nuevo token.
+4. Si la renovación falla, muestra un **toast** "Tu sesión expiró. Redirigiendo..." durante 2 segundos y redirige a `/login`.
 
-El límite de horas diarias se sincroniza con el backend via `GET/PATCH /api/users/profile/`.
+### Deduplicación de refreshes
 
-## ⚡ Vista Hoy (WebSocket)
+Si múltiples hooks reciben `401` al mismo tiempo (por ejemplo, cuando la página carga varios recursos en paralelo), se dispara **un solo refresh** gracias a la promesa compartida `_refreshPromise`. Todos los callers esperan el mismo resultado.
 
-`useHoy.js` obtiene las actividades del día desde `GET /api/activities/today/` y se suscribe a actualizaciones en tiempo real vía WebSocket (`wss://.../ws/activities/today/?token=`). La clasificación en **vencidas / hoy / próximas** se ajusta en el cliente usando la zona horaria `America/Bogota`.
+### PrivateRoute
 
-## 👤 Perfil de Usuario
+Antes de renderizar una ruta protegida:
+- Si no hay token → redirige a `/login`.
+- Si el token existe pero expiró (verificado decodificando el `exp` del JWT) → intenta `refreshAccessToken()`. Si funciona, pasa. Si falla, redirige a `/login`.
 
-La página `/perfil` permite:
-- Editar nombre, apellido, nombre de usuario y email.
-- Configurar el límite de horas diarias.
-- Cambiar la contraseña con validación de la contraseña actual.
+### Renovación proactiva
 
-Todos los cambios se persisten en el backend via `PATCH /api/users/profile/` y `POST /api/users/change-password/`.
+`App.jsx` ejecuta `refreshAccessToken()` cada **14 minutos** como respaldo, independientemente del flujo reactivo de `authFetch`.
 
-## 🚀 Instalación y Ejecución
+---
 
-### Requisitos previos
+## Estado de subtareas
 
-- [Node.js](https://nodejs.org/) v18 o superior
+Las subtareas usan un **enum de estado** en lugar del booleano `completada`:
+
+| Estado | Significado |
+|--------|-------------|
+| `pendiente` | Sin completar |
+| `hecha` | Completada |
+| `pospuesta` | Pospuesta (incluye `nota_posposicion` opcional) |
+
+---
+
+## Vista Hoy
+
+`useHoy.js` obtiene los datos desde `GET /api/activities/today/` y se suscribe a actualizaciones en tiempo real vía WebSocket (`wss://.../ws/activities/today/?token=`).
+
+El backend retorna subtareas como items de primer nivel dentro de las secciones `overdue`, `today` y `upcoming`, con el objeto `activity` anidado en cada subtarea.
+
+### Filtros disponibles
+
+| Parámetro | Valores |
+|-----------|---------|
+| `?curso=` | Nombre del curso |
+| `?estado=` | `pendiente` \| `pospuesta` |
+
+Las subtareas con `estado='hecha'` son excluidas automáticamente por el backend.
+
+### Acciones inline en SubtareaHoyCard
+
+- **Toggle**: marca como hecha / pendiente.
+- **Posponer**: marca como pospuesta con nota opcional.
+- **Reprogramar**: cambia la `fecha_objetivo`. Si hay conflicto de horas → abre `ConflictoModal`.
+
+---
+
+## Conflictos de horas (US-06/07/08)
+
+Cuando se reprograma una subtarea y el día destino supera el límite de horas diarias, el backend responde `409` con el formato:
+
+```json
+{
+  "error": {
+    "code": "OVERLOAD_CONFLICT",
+    "message": "...",
+    "detail": { "target_date": "...", "planned_hours": 9, "daily_limit": 7 },
+    "suggestions": [
+      { "type": "move", "available_dates": [{ "date": "...", "available_hours": 7 }] },
+      { "type": "reduce", "current_hours": 3, "max_without_conflict": 1 },
+      { "type": "force" }
+    ]
+  }
+}
+```
+
+`ConflictoModal` normaliza este formato y ofrece tres opciones al usuario:
+
+1. **Mover** la subtarea a una de las fechas sugeridas.
+2. **Reducir** las horas estimadas para caber en el día original.
+3. **Forzar** el guardado aceptando la sobrecarga (`forzar: true`).
+
+`useReprogramar` maneja el estado del conflicto y la resolución, usando `authFetch` para todas las peticiones.
+
+---
+
+## Instalación y ejecución
+
+### Requisitos
+
+- Node.js v18 o superior
 - npm v9 o superior
+- Backend corriendo (ver repositorio del backend)
 
 ### Pasos
 
 ```bash
-# 1. Ir a la carpeta del frontend
 cd miniProyecto/frontend
-
-# 2. Instalar dependencias
 npm install
-
-# 3. Configurar variables de entorno (si es necesario)
-cp .env.example .env
-
-# 4. Iniciar servidor de desarrollo
 npm run dev
 ```
 
-El frontend estará disponible en **http://localhost:5173**
+Disponible en **http://localhost:5173**
 
-### Scripts disponibles
+### Scripts
 
 | Comando | Descripción |
 |---------|-------------|
-| `npm run dev` | Inicia el servidor de desarrollo |
-| `npm run build` | Genera la build de producción |
-| `npm run preview` | Previsualiza la build de producción |
+| `npm run dev` | Servidor de desarrollo |
+| `npm run build` | Build de producción |
+| `npm run preview` | Previsualiza la build |
 | `npm run lint` | Ejecuta ESLint |
 
-## ⚙️ Variables de Entorno
+---
 
-| Archivo | Comando | URL de la API |
-|---------|---------|---------------|
-| `.env` | `npm run dev` | `http://127.0.0.1:8000` |
-| `.env.production` | `npm run build` | `https://miniproyecto-backend.onrender.com` |
+## Variables de entorno
 
-| Variable | Descripción |
-|----------|-------------|
-| `VITE_API_URL` | URL base de la API del backend |
+| Variable | Descripción | Default |
+|----------|-------------|---------|
+| `VITE_API_URL` | URL base de la API REST | `http://127.0.0.1:8000` |
 
-## ⚠️ Nota
+Crear un archivo `.env` en `frontend/` con:
 
-El **backend** debe estar corriendo antes de iniciar el frontend. Repositorio del backend disponible por separado.
+```
+VITE_API_URL=http://127.0.0.1:8000
+```
