@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { LayoutList, Plus } from 'lucide-react'
+import { LayoutList, Plus, BookOpen, SlidersHorizontal, X, ChevronDown } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Alert from '../components/Alert'
 import Toast from '../components/Toast'
@@ -20,22 +20,161 @@ const TIPOS_FILTRO = [
   { value: 'other', label: 'Otro' },
 ]
 
-const CURSOS_FILTRO = [
-  { value: '', label: 'Todos los cursos' },
-  ...CURSOS,
-]
+const CURSOS_FILTRO = [{ value: '', label: 'Todos los cursos' }, ...CURSOS]
 
+/* ─── Pill de tipo ───────────────────────────────────────── */
+function TipoPill({ tipo, active, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium
+        border transition-all duration-200 select-none whitespace-nowrap
+        ${active
+          ? 'bg-[#1A1A1A] text-white border-[#1A1A1A] shadow-md scale-[1.03]'
+          : 'bg-white text-gray-600 border-[#E1E4E7] hover:border-gray-400 hover:bg-gray-50'
+        }
+      `}
+    >
+      <span className="text-base leading-none">{tipo.emoji}</span>
+      {tipo.label}
+    </button>
+  )
+}
+
+/* ─── Select estilizado ──────────────────────────────────── */
+function CursoSelect({ value, onChange, options }) {
+  return (
+    <div className="relative">
+      <BookOpen
+        size={15}
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+      />
+      <select
+        value={value}
+        onChange={onChange}
+        className="
+          appearance-none pl-8 pr-8 py-1.5 rounded-full text-sm font-medium
+          bg-white border border-[#E1E4E7] text-gray-600
+          hover:border-gray-400 focus:outline-none focus:border-[#1A1A1A]
+          transition-all duration-200 cursor-pointer
+        "
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
+      <ChevronDown
+        size={13}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+      />
+    </div>
+  )
+}
+
+/* ─── Chip de filtro activo ──────────────────────────────── */
+function ActiveChip({ label, onRemove }) {
+  return (
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-xs font-semibold">
+      {label}
+      <button onClick={onRemove} className="hover:text-indigo-900 transition-colors">
+        <X size={11} strokeWidth={2.5} />
+      </button>
+    </span>
+  )
+}
+
+/* ─── Barra de filtros principal ─────────────────────────── */
+function FilterBar({ filtroTipo, setFiltroTipo, filtroCurso, setFiltroCurso, total, filtrado }) {
+  const [open, setOpen] = useState(true)
+  const hayFiltros = filtroTipo || filtroCurso
+  const cursoLabel = CURSOS_FILTRO.find(c => c.value === filtroCurso)?.label
+  const tipoLabel  = TIPOS_FILTRO.find(t => t.value === filtroTipo)?.label
+
+  return (
+    <div className="mb-6 space-y-2">
+      {/* Cabecera de filtros */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => setOpen(v => !v)}
+          className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 transition-colors select-none"
+        >
+          <SlidersHorizontal size={14} />
+          <span className="font-medium">Filtros</span>
+          <ChevronDown
+            size={13}
+            className={`transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+          />
+        </button>
+
+        <div className="flex items-center gap-2">
+          {/* Chips de filtros activos */}
+          {tipoLabel  && <ActiveChip label={tipoLabel}  onRemove={() => setFiltroTipo('')} />}
+          {cursoLabel && filtroCurso && <ActiveChip label={cursoLabel} onRemove={() => setFiltroCurso('')} />}
+
+          {hayFiltros && (
+            <button
+              onClick={() => { setFiltroTipo(''); setFiltroCurso('') }}
+              className="text-xs text-gray-400 hover:text-red-500 transition-colors font-medium underline underline-offset-2"
+            >
+              Limpiar todo
+            </button>
+          )}
+
+          {/* Contador */}
+          <span className="ml-1 text-xs text-gray-400">
+            {hayFiltros ? `${filtrado} de ${total}` : `${total} actividades`}
+          </span>
+        </div>
+      </div>
+
+      {/* Panel colapsable */}
+      <div
+        className={`
+          overflow-hidden transition-all duration-300 ease-in-out
+          ${open ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}
+        `}
+      >
+        <div className="bg-white border border-[#E1E4E7] rounded-2xl px-4 py-3 flex flex-wrap items-center gap-2 shadow-xs">
+          {/* Pills de tipo */}
+          <div className="flex flex-wrap gap-2 items-center">
+            {TIPOS_FILTRO.map((t) => (
+              <TipoPill
+                key={t.value}
+                tipo={t}
+                active={filtroTipo === t.value}
+                onClick={() => setFiltroTipo(filtroTipo === t.value ? '' : t.value)}
+              />
+            ))}
+          </div>
+
+          {/* Divisor vertical */}
+          <div className="hidden md:block w-px h-6 bg-[#E1E4E7] mx-1" />
+
+          {/* Select de curso */}
+          <CursoSelect
+            value={filtroCurso}
+            onChange={(e) => setFiltroCurso(e.target.value)}
+            options={CURSOS_FILTRO}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─── Vista principal ────────────────────────────────────── */
 function MisActividades() {
   const { actividades, cargando, error } = useActividades()
   const { limite } = useLimiteHoras()
   const navigate = useNavigate()
   const location = useLocation()
-  const [exito, setExito] = useState(location.state?.exito || null)
-  const [filtroTipo, setFiltroTipo] = useState('')
+  const [exito, setExito]       = useState(location.state?.exito || null)
+  const [filtroTipo, setFiltroTipo]   = useState('')
   const [filtroCurso, setFiltroCurso] = useState('')
 
   const actividadesFiltradas = actividades.filter((act) => {
-    if (filtroTipo && act.tipo !== filtroTipo) return false
+    if (filtroTipo  && act.tipo  !== filtroTipo)  return false
     if (filtroCurso && act.curso !== filtroCurso) return false
     return true
   })
@@ -83,35 +222,39 @@ function MisActividades() {
 
         {/* Filtros */}
         {cargando ? (
-          <div className="flex flex-wrap items-center gap-3 mb-6">
-            <div className="w-44 h-10 bg-gray-200 rounded-lg animate-pulse" />
-            <div className="w-56 h-10 bg-gray-200 rounded-lg animate-pulse" />
+          <div className="mb-6 space-y-2">
+            {/* Cabecera skeleton */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-3.5 h-3.5 bg-gray-200 rounded animate-pulse" />
+                <div className="w-12 h-3.5 bg-gray-200 rounded animate-pulse" />
+                <div className="w-3 h-3 bg-gray-200 rounded animate-pulse" />
+              </div>
+              <div className="w-24 h-3.5 bg-gray-100 rounded animate-pulse" />
+            </div>
+            {/* Panel skeleton */}
+            <div className="bg-white border border-[#E1E4E7] rounded-2xl px-4 py-3 flex flex-wrap items-center gap-2">
+              {/* Pills de tipo */}
+              {[72, 56, 64, 76, 48].map((w, i) => (
+                <div
+                  key={i}
+                  className="h-8 bg-gray-100 rounded-full animate-pulse"
+                  style={{ width: `${w}px`, animationDelay: `${i * 60}ms` }}
+                />
+              ))}
+              {/* Divisor */}
+              <div className="hidden md:block w-px h-6 bg-[#E1E4E7] mx-1" />
+              {/* Select curso */}
+              <div className="h-8 w-40 bg-gray-100 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+            </div>
           </div>
         ) : !error && actividades.length > 0 && (
-          <div className="flex flex-wrap items-center gap-3 mb-6">
-            <Select
-              name="filtroTipo"
-              value={filtroTipo}
-              onChange={(e) => setFiltroTipo(e.target.value)}
-              options={TIPOS_FILTRO}
-              className="w-44"
-            />
-            <Select
-              name="filtroCurso"
-              value={filtroCurso}
-              onChange={(e) => setFiltroCurso(e.target.value)}
-              options={CURSOS_FILTRO}
-              className="w-56"
-            />
-            {(filtroTipo || filtroCurso) && (
-              <button
-                onClick={() => { setFiltroTipo(''); setFiltroCurso('') }}
-                className="px-3 py-2 text-sm text-gray-500 border border-[#E1E4E7] rounded-lg hover:border-gray-400 transition-colors"
-              >
-                Limpiar filtros
-              </button>
-            )}
-          </div>
+          <FilterBar
+            filtroTipo={filtroTipo}   setFiltroTipo={setFiltroTipo}
+            filtroCurso={filtroCurso} setFiltroCurso={setFiltroCurso}
+            total={actividades.length}
+            filtrado={actividadesFiltradas.length}
+          />
         )}
 
         {/* Contenido */}
